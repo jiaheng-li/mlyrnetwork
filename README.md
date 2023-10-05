@@ -1,2 +1,2 @@
-# mlayernetwork
- Development of R package mlayernetwork
+# mlyrnetwork
+ Development of R package mlyrnetwork

@@ -2,15 +2,15 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 rcpp_estimate_model_ml_Hway <- function(RNETWORK, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, random_seeds, g) {
-    .Call(`_mlayernetwork_rcpp_estimate_model_ml_Hway`, RNETWORK, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, random_seeds, g)
+    .Call(`_mlyrnetwork_rcpp_estimate_model_ml_Hway`, RNETWORK, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, random_seeds, g)
 }
 
 rcpp_estimate_model_ml_3way <- function(RNETWORK, rNR_tol, rNR_max, rMCMLE_max, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rcheck_chull, random_seeds, g) {
-    .Call(`_mlayernetwork_rcpp_estimate_model_ml_3way`, RNETWORK, rNR_tol, rNR_max, rMCMLE_max, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rcheck_chull, random_seeds, g)
+    .Call(`_mlyrnetwork_rcpp_estimate_model_ml_3way`, RNETWORK, rNR_tol, rNR_max, rMCMLE_max, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rcheck_chull, random_seeds, g)
 }
 
 rcpp_estimate_model_ml <- function(RNETWORK, rIter_max, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rcheck_chull, random_seeds, g) {
-    .Call(`_mlayernetwork_rcpp_estimate_model_ml`, RNETWORK, rIter_max, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rcheck_chull, random_seeds, g)
+    .Call(`_mlyrnetwork_rcpp_estimate_model_ml`, RNETWORK, rIter_max, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rcheck_chull, random_seeds, g)
 }
 
 #' @title rcpp_simulate_ml
@@ -23,7 +23,7 @@ rcpp_estimate_model_ml <- function(RNETWORK, rIter_max, rsamp_num, rburnin, rint
 #' 
 #' @export
 rcpp_simulate_ml_LSM <- function(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g, fe, nmu, nsd) {
-    .Call(`_mlayernetwork_rcpp_simulate_ml_LSM`, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g, fe, nmu, nsd)
+    .Call(`_mlyrnetwork_rcpp_simulate_ml_LSM`, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g, fe, nmu, nsd)
 }
 
 #' @title rcpp_simulate_ml
@@ -36,7 +36,7 @@ rcpp_simulate_ml_LSM <- function(rsamp_num, rburnin, rinterval, rmodel_dim, mode
 #' 
 #' @export
 rcpp_simulate_ml_SBM <- function(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g, block, p1, p2) {
-    .Call(`_mlayernetwork_rcpp_simulate_ml_SBM`, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g, block, p1, p2)
+    .Call(`_mlyrnetwork_rcpp_simulate_ml_SBM`, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g, block, p1, p2)
 }
 
 #' @title rcpp_simulate_ml
@@ -49,7 +49,7 @@ rcpp_simulate_ml_SBM <- function(rsamp_num, rburnin, rinterval, rmodel_dim, mode
 #' 
 #' @export
 rcpp_simulate_ml <- function(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g) {
-    .Call(`_mlayernetwork_rcpp_simulate_ml`, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g)
+    .Call(`_mlyrnetwork_rcpp_simulate_ml`, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g)
 }
 
 #' @title rcpp_simulate_ml_suffstats
@@ -62,7 +62,7 @@ rcpp_simulate_ml <- function(rsamp_num, rburnin, rinterval, rmodel_dim, model_te
 #' 
 #' @export
 rcpp_simulate_ml_suffstats <- function(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g) {
-    .Call(`_mlayernetwork_rcpp_simulate_ml_suffstats`, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g)
+    .Call(`_mlyrnetwork_rcpp_simulate_ml_suffstats`, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g)
 }
 
 #' @title rcpp_exact_simulate_ml
@@ -75,22 +75,22 @@ rcpp_simulate_ml_suffstats <- function(rsamp_num, rburnin, rinterval, rmodel_dim
 #'
 #' @export
 rcpp_exact_simulate_ml <- function(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed) {
-    .Call(`_mlayernetwork_rcpp_exact_simulate_ml`, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed)
+    .Call(`_mlyrnetwork_rcpp_exact_simulate_ml`, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed)
 }
 
 rcpparma_hello_world <- function() {
-    .Call(`_mlayernetwork_rcpparma_hello_world`)
+    .Call(`_mlyrnetwork_rcpparma_hello_world`)
 }
 
 rcpparma_outerproduct <- function(x) {
-    .Call(`_mlayernetwork_rcpparma_outerproduct`, x)
+    .Call(`_mlyrnetwork_rcpparma_outerproduct`, x)
 }
 
 rcpparma_innerproduct <- function(x) {
-    .Call(`_mlayernetwork_rcpparma_innerproduct`, x)
+    .Call(`_mlyrnetwork_rcpparma_innerproduct`, x)
 }
 
 rcpparma_bothproducts <- function(x) {
-    .Call(`_mlayernetwork_rcpparma_bothproducts`, x)
+    .Call(`_mlyrnetwork_rcpparma_bothproducts`, x)
 }
 

@@ -1,4 +1,4 @@
-Package: mlayernetwork
+Package: mlyrnetwork
 Type: Package
 Title: Sampling, estimation and analysis of multilayer network data.
 Version: 1.0
