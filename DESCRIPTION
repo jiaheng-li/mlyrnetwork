@@ -12,3 +12,6 @@ RoxygenNote: 7.2.3
 Depends: ergm
 Imports: Rcpp (>= 1.0.10)
 LinkingTo: Rcpp, RcppArmadillo
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

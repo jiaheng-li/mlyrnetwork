@@ -17,7 +17,7 @@ rcpp_exact_simulate_ml(
 )
 }
 \description{
-Simulate a multilayer network model by its joint density
+Simulate a network-separable multilayer network model by its exact joint density
 }
 \examples{
 rcpp_exact_simulate_ml(1,1,3,7,rep("ml_order2",7),10,3,c(0,0.693,0.693,0,0.693,0,0),23333)

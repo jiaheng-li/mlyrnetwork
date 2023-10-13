@@ -18,7 +18,7 @@ rcpp_simulate_ml_suffstats(
 )
 }
 \description{
-Simulate a multilayer network model and print out sufficient statistics
+Simulate a network-separable multilayer network model with 2-way interactions and print out sufficient statistics
 }
 \examples{
 rcpp_simulate_ml_suffstats(1,100,1,2,c("withinlayer","crosslayer"),3,2,c(0.4,0.7))
