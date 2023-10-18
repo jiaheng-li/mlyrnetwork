@@ -1,0 +1,17 @@
+Package: mlyrnetwork
+Type: Package
+Title: Sampling, estimation and analysis of multilayer network data.
+Version: 1.0
+Date: 2023-09-30
+Author: Jiaheng Li
+Maintainer: Jiaheng Li <jiahenghenryli@gmail.com>
+Description: Sample, estimate and analyze multilayer network data according to network separable models for multilayer networks.
+License: GPL (>= 2)
+Encoding: UTF-8
+RoxygenNote: 7.2.3
+Depends: ergm
+Imports: Rcpp (>= 1.0.10)
+LinkingTo: Rcpp, RcppArmadillo
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
