@@ -1,7 +1,7 @@
 
 #' Title
 #'
-#' @param theta model-generating parameter by lexicographic order
+#' @param theta model-generating parameter vector by lexicographic order
 #' @param N number of nodes
 #' @param samp_num number of simulated samples
 #' @param burnin number of burn-ins for the MCMC algorithm

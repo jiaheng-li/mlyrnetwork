@@ -18,7 +18,7 @@ er.simulate(
 )
 }
 \arguments{
-\item{theta}{model-generating parameter by lexicographic order}
+\item{theta}{model-generating parameter vector by lexicographic order}
 
 \item{N}{number of nodes}
 
