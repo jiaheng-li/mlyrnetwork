@@ -6,15 +6,16 @@
 \usage{
 er.simulate(
   theta,
-  N,
+  N = 10,
   samp_num = 1,
   burnin = 100,
   k = 3,
-  mdim = 6,
-  mterm = rep("ml_order2", mdim),
+  mdim,
+  mterm = "BER",
   intv = 3,
+  H = 2,
   seed = 0,
-  gy = 1
+  basis_arguments = c(0.5, 0)
 )
 }
 \arguments{

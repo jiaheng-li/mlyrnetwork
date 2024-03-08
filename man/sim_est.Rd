@@ -4,7 +4,20 @@
 \alias{sim_est}
 \title{Title}
 \usage{
-sim_est(theta, N, samp_num, burnin, k, mdim, mterm, intv, iter_max, seed, gy)
+sim_est(
+  theta,
+  N,
+  samp_num = 1,
+  burnin = 100,
+  k = 3,
+  H = 2,
+  mdim,
+  mterm = "BER",
+  intv = 3,
+  seed = 0,
+  iter_max = 30000,
+  basis_arguments = c(1, 0)
+)
 }
 \arguments{
 \item{theta}{model-generating parameter}
@@ -23,9 +36,9 @@ sim_est(theta, N, samp_num, burnin, k, mdim, mterm, intv, iter_max, seed, gy)
 
 \item{intv}{}
 
-\item{iter_max}{}
-
 \item{seed}{}
+
+\item{iter_max}{}
 
 \item{gy}{}
 }

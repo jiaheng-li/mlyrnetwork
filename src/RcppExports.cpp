@@ -12,8 +12,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // rcpp_estimate_model_ml_Hway
-List rcpp_estimate_model_ml_Hway(IntegerMatrix RNETWORK, IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, IntegerVector random_seeds, NumericVector g);
-RcppExport SEXP _mlyrnetwork_rcpp_estimate_model_ml_Hway(SEXP RNETWORKSEXP, SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP random_seedsSEXP, SEXP gSEXP) {
+List rcpp_estimate_model_ml_Hway(IntegerMatrix RNETWORK, IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, IntegerVector rhighest_order, IntegerVector random_seeds, NumericVector arguments, IntegerVector itermax);
+RcppExport SEXP _mlyrnetwork_rcpp_estimate_model_ml_Hway(SEXP RNETWORKSEXP, SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rhighest_orderSEXP, SEXP random_seedsSEXP, SEXP argumentsSEXP, SEXP itermaxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -25,61 +25,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< StringVector >::type model_terms(model_termsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type rnum_nodes(rnum_nodesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type rnum_layers(rnum_layersSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rhighest_order(rhighest_orderSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type random_seeds(random_seedsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type g(gSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_estimate_model_ml_Hway(RNETWORK, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, random_seeds, g));
+    Rcpp::traits::input_parameter< NumericVector >::type arguments(argumentsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type itermax(itermaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_estimate_model_ml_Hway(RNETWORK, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rhighest_order, random_seeds, arguments, itermax));
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_estimate_model_ml_3way
-List rcpp_estimate_model_ml_3way(IntegerMatrix RNETWORK, NumericVector rNR_tol, IntegerVector rNR_max, IntegerVector rMCMLE_max, IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, LogicalVector rcheck_chull, IntegerVector random_seeds, NumericVector g);
-RcppExport SEXP _mlyrnetwork_rcpp_estimate_model_ml_3way(SEXP RNETWORKSEXP, SEXP rNR_tolSEXP, SEXP rNR_maxSEXP, SEXP rMCMLE_maxSEXP, SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rcheck_chullSEXP, SEXP random_seedsSEXP, SEXP gSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerMatrix >::type RNETWORK(RNETWORKSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type rNR_tol(rNR_tolSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rNR_max(rNR_maxSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rMCMLE_max(rMCMLE_maxSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rsamp_num(rsamp_numSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rburnin(rburninSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rinterval(rintervalSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rmodel_dim(rmodel_dimSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type model_terms(model_termsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_nodes(rnum_nodesSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_layers(rnum_layersSEXP);
-    Rcpp::traits::input_parameter< LogicalVector >::type rcheck_chull(rcheck_chullSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type random_seeds(random_seedsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type g(gSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_estimate_model_ml_3way(RNETWORK, rNR_tol, rNR_max, rMCMLE_max, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rcheck_chull, random_seeds, g));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpp_estimate_model_ml
-List rcpp_estimate_model_ml(IntegerMatrix RNETWORK, NumericVector rIter_max, IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, LogicalVector rcheck_chull, IntegerVector random_seeds, NumericVector g);
-RcppExport SEXP _mlyrnetwork_rcpp_estimate_model_ml(SEXP RNETWORKSEXP, SEXP rIter_maxSEXP, SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rcheck_chullSEXP, SEXP random_seedsSEXP, SEXP gSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerMatrix >::type RNETWORK(RNETWORKSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type rIter_max(rIter_maxSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rsamp_num(rsamp_numSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rburnin(rburninSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rinterval(rintervalSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rmodel_dim(rmodel_dimSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type model_terms(model_termsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_nodes(rnum_nodesSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_layers(rnum_layersSEXP);
-    Rcpp::traits::input_parameter< LogicalVector >::type rcheck_chull(rcheck_chullSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type random_seeds(random_seedsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type g(gSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_estimate_model_ml(RNETWORK, rIter_max, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rcheck_chull, random_seeds, g));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpp_simulate_ml_LSM
-List rcpp_simulate_ml_LSM(IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, NumericVector rtheta, int rand_seed, NumericVector g, double fe, double nmu, double nsd);
-RcppExport SEXP _mlyrnetwork_rcpp_simulate_ml_LSM(SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rthetaSEXP, SEXP rand_seedSEXP, SEXP gSEXP, SEXP feSEXP, SEXP nmuSEXP, SEXP nsdSEXP) {
+// rcpp_simulate_ml_Hway
+List rcpp_simulate_ml_Hway(IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, NumericVector rtheta, int rhighest_order, int rand_seed, NumericVector arguments);
+RcppExport SEXP _mlyrnetwork_rcpp_simulate_ml_Hway(SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rthetaSEXP, SEXP rhighest_orderSEXP, SEXP rand_seedSEXP, SEXP argumentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -91,94 +47,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< IntegerVector >::type rnum_nodes(rnum_nodesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type rnum_layers(rnum_layersSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type rtheta(rthetaSEXP);
+    Rcpp::traits::input_parameter< int >::type rhighest_order(rhighest_orderSEXP);
     Rcpp::traits::input_parameter< int >::type rand_seed(rand_seedSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type g(gSEXP);
-    Rcpp::traits::input_parameter< double >::type fe(feSEXP);
-    Rcpp::traits::input_parameter< double >::type nmu(nmuSEXP);
-    Rcpp::traits::input_parameter< double >::type nsd(nsdSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_simulate_ml_LSM(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g, fe, nmu, nsd));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpp_simulate_ml_SBM
-List rcpp_simulate_ml_SBM(IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, NumericVector rtheta, int rand_seed, NumericVector g, int block, double p1, double p2);
-RcppExport SEXP _mlyrnetwork_rcpp_simulate_ml_SBM(SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rthetaSEXP, SEXP rand_seedSEXP, SEXP gSEXP, SEXP blockSEXP, SEXP p1SEXP, SEXP p2SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type rsamp_num(rsamp_numSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rburnin(rburninSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rinterval(rintervalSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rmodel_dim(rmodel_dimSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type model_terms(model_termsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_nodes(rnum_nodesSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_layers(rnum_layersSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type rtheta(rthetaSEXP);
-    Rcpp::traits::input_parameter< int >::type rand_seed(rand_seedSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type g(gSEXP);
-    Rcpp::traits::input_parameter< int >::type block(blockSEXP);
-    Rcpp::traits::input_parameter< double >::type p1(p1SEXP);
-    Rcpp::traits::input_parameter< double >::type p2(p2SEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_simulate_ml_SBM(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g, block, p1, p2));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpp_simulate_ml
-List rcpp_simulate_ml(IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, NumericVector rtheta, int rand_seed, NumericVector g);
-RcppExport SEXP _mlyrnetwork_rcpp_simulate_ml(SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rthetaSEXP, SEXP rand_seedSEXP, SEXP gSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type rsamp_num(rsamp_numSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rburnin(rburninSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rinterval(rintervalSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rmodel_dim(rmodel_dimSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type model_terms(model_termsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_nodes(rnum_nodesSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_layers(rnum_layersSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type rtheta(rthetaSEXP);
-    Rcpp::traits::input_parameter< int >::type rand_seed(rand_seedSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type g(gSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_simulate_ml(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpp_simulate_ml_suffstats
-List rcpp_simulate_ml_suffstats(IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, NumericVector rtheta, int rand_seed, NumericVector g);
-RcppExport SEXP _mlyrnetwork_rcpp_simulate_ml_suffstats(SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rthetaSEXP, SEXP rand_seedSEXP, SEXP gSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type rsamp_num(rsamp_numSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rburnin(rburninSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rinterval(rintervalSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rmodel_dim(rmodel_dimSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type model_terms(model_termsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_nodes(rnum_nodesSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_layers(rnum_layersSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type rtheta(rthetaSEXP);
-    Rcpp::traits::input_parameter< int >::type rand_seed(rand_seedSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type g(gSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_simulate_ml_suffstats(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed, g));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpp_exact_simulate_ml
-List rcpp_exact_simulate_ml(IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, NumericVector rtheta, int rand_seed);
-RcppExport SEXP _mlyrnetwork_rcpp_exact_simulate_ml(SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rthetaSEXP, SEXP rand_seedSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type rsamp_num(rsamp_numSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rburnin(rburninSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rinterval(rintervalSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rmodel_dim(rmodel_dimSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type model_terms(model_termsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_nodes(rnum_nodesSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rnum_layers(rnum_layersSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type rtheta(rthetaSEXP);
-    Rcpp::traits::input_parameter< int >::type rand_seed(rand_seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_exact_simulate_ml(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rand_seed));
+    Rcpp::traits::input_parameter< NumericVector >::type arguments(argumentsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_simulate_ml_Hway(rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rtheta, rhighest_order, rand_seed, arguments));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -227,14 +99,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_mlyrnetwork_rcpp_estimate_model_ml_Hway", (DL_FUNC) &_mlyrnetwork_rcpp_estimate_model_ml_Hway, 10},
-    {"_mlyrnetwork_rcpp_estimate_model_ml_3way", (DL_FUNC) &_mlyrnetwork_rcpp_estimate_model_ml_3way, 14},
-    {"_mlyrnetwork_rcpp_estimate_model_ml", (DL_FUNC) &_mlyrnetwork_rcpp_estimate_model_ml, 12},
-    {"_mlyrnetwork_rcpp_simulate_ml_LSM", (DL_FUNC) &_mlyrnetwork_rcpp_simulate_ml_LSM, 13},
-    {"_mlyrnetwork_rcpp_simulate_ml_SBM", (DL_FUNC) &_mlyrnetwork_rcpp_simulate_ml_SBM, 13},
-    {"_mlyrnetwork_rcpp_simulate_ml", (DL_FUNC) &_mlyrnetwork_rcpp_simulate_ml, 10},
-    {"_mlyrnetwork_rcpp_simulate_ml_suffstats", (DL_FUNC) &_mlyrnetwork_rcpp_simulate_ml_suffstats, 10},
-    {"_mlyrnetwork_rcpp_exact_simulate_ml", (DL_FUNC) &_mlyrnetwork_rcpp_exact_simulate_ml, 9},
+    {"_mlyrnetwork_rcpp_estimate_model_ml_Hway", (DL_FUNC) &_mlyrnetwork_rcpp_estimate_model_ml_Hway, 12},
+    {"_mlyrnetwork_rcpp_simulate_ml_Hway", (DL_FUNC) &_mlyrnetwork_rcpp_simulate_ml_Hway, 11},
     {"_mlyrnetwork_rcpparma_hello_world", (DL_FUNC) &_mlyrnetwork_rcpparma_hello_world, 0},
     {"_mlyrnetwork_rcpparma_outerproduct", (DL_FUNC) &_mlyrnetwork_rcpparma_outerproduct, 1},
     {"_mlyrnetwork_rcpparma_innerproduct", (DL_FUNC) &_mlyrnetwork_rcpparma_innerproduct, 1},

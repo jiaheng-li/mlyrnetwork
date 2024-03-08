@@ -7,8 +7,10 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
+#include <unordered_map>        // Hash table in C++
 #include "graph_class.h"
 #include "model.h"
+#include "basis_net.h"
 
 using namespace std;
 using namespace arma;
@@ -16,6 +18,7 @@ using namespace arma;
 
 
 
+/*
 class sim_ml_exact {
 public:
     vector<double>  theta; // Allow heterogeneity within and across layers. Should specify the highest order of interactions.
@@ -263,8 +266,9 @@ public:
 
 
 };
+*/
 
-
+/*
 class sim_ml_LSM {
 
 public:
@@ -708,8 +712,10 @@ public:
 
 
 };
+*/
 
 
+/*
 class sim_ml_SBM {
 
 public:
@@ -1149,9 +1155,9 @@ public:
 
 
 };
+*/
 
-
-
+/*
 class sim_ml {
 
 public:
@@ -1550,6 +1556,556 @@ public:
             chain_state[p] += sign * change_stat[int(p / mlnetwork.layer_count())][p % mlnetwork.layer_count()];
         }
     }
+
+
+    // Returns factorial of n
+    int fact(int n)
+    {
+        int res = 1;
+        for (int i = 2; i <= n; i++)
+            res = res * i;
+        return res;
+    }
+
+
+    int nCr(int n, int r)
+    {
+        return fact(n) / (fact(r) * fact(n - r));
+    }
+
+
+};
+*/
+
+
+
+class sim_ml_Hway {
+
+public:
+    vector<double> theta;  // Model parameters ordered in the lexicographical order. 
+    vector<double> mean;
+    int num_samples;
+    int burnin;
+    int interval;
+    int model_dim;
+    string model_term;
+    double random_seed;
+    mat samples;
+    mod m;
+    mlnet mlnetwork;
+    mlnet basis_net;
+    vector<int> count;
+    vector<int> count_net;
+    int count_threeway;
+    vector<vector<vector<int> > > count_cross;
+    vector<vector<int> > netCount_samp;
+    vector<int> threewayCount_samp;
+    vector<vector<vector<int> > > crossLayerCount_samp;
+    double gy;  //specify density g(y) of y
+    int H;
+    vector<int> all_interaction_layer;
+    vector<int> combination;
+    vector<vector <int> > selected_layer;
+    // Store the mapping between lexicographical orders (under same order of interactions) and parameter indeces.
+    unordered_map<string, int> indexmap;
+    // Store all interactive layers for a given edge
+    unordered_map<int, vector<string> > layermap;
+    vector<double> basis_arguments;
+
+
+public:
+    sim_ml_Hway(int nsamp, int burn, int intv, int mdim, string mterms,
+        int N, int K, int highest_order, double rand_seed, vector<double> arguments)
+        : samples(nsamp, mdim),
+        mlnetwork(N, K),
+        basis_net(N, 1),
+        m(mterms)
+    {
+        num_samples = nsamp;
+        burnin = burn;
+        interval = intv;
+        model_dim = mdim;
+        model_term = mterms;
+        theta.resize(get_model_dim());
+        random_seed = rand_seed;
+        H = highest_order;
+        basis_arguments = arguments;
+
+    }
+
+    int compute_change_stats(int i, int j, int k, vector <int>& layers) {
+        bool f = true;
+        for (int ii = 0; ii < layers.size(); ii++) {
+            if (!mlnetwork.is_edge(i, j, layers[ii]) && layers[ii] != k) {
+                f = false;
+                break;
+            }
+        }
+        if (f) return 1;
+        else return 0;
+    }
+
+    // Select all combinations of k layers, where k is the order of interaction
+    void select_layer(int offset, int k) {
+        if (k == 0) {
+            selected_layer.push_back(combination);
+            return;
+        }
+        for (int i = offset; i <= all_interaction_layer.size() - k; ++i) {
+            combination.push_back(all_interaction_layer[i]);
+            select_layer(i + 1, k - 1);
+            combination.pop_back();
+        }
+    }
+
+    // Compute the parameter index from lexicographical orders
+    void compute_param_index() {
+        int param_ind = 0;
+        for (int h = 0; h < mlnetwork.layer_count(); ++h) {
+            indexmap.insert(make_pair(to_string(h), param_ind++));
+        }
+        for (int h = 2; h <= H; ++h) {
+            select_layer(0, h);
+            for (auto ele : selected_layer)
+            {
+                string lexi_ind = "";
+                for (auto ele2 : ele) {
+                    lexi_ind += to_string(ele2);
+                }
+                indexmap.insert(make_pair(lexi_ind, param_ind++));
+            }
+
+
+            // Re-initialize for next use
+            int s = selected_layer.size();
+            for (int num = 0; num < s; ++num) {
+                selected_layer.pop_back();
+            }
+
+
+            s = combination.size();
+            for (int num = 0; num < s; ++num) {
+                combination.pop_back();
+            }
+        }
+    }
+
+    // Compute the index of layers associated with each edge
+    void compute_layer_index() {
+        int param_ind = 0;
+        vector<string> layer_vec;
+        for (int k = 0; k < mlnetwork.layer_count(); k++) {
+            layer_vec.clear();
+            layer_vec.push_back(to_string(k));
+            for (int h = 1; h < H; ++h) {
+                select_layer(0, h);
+                for (auto ele : selected_layer) {
+                    if (binary_search(ele.begin(), ele.end(), k)) continue;
+                    string layer_ind = "";
+                    vector<int> layer_ele = ele;
+                    layer_ele.push_back(k);
+                    sort(layer_ele.begin(), layer_ele.end());
+                    for (auto ele2 : layer_ele) {
+                        layer_ind += to_string(ele2);
+                    }
+                    layer_vec.push_back(layer_ind);
+                }
+
+                // Re-initialize for next use
+                int s = selected_layer.size();
+                for (int num = 0; num < s; ++num) {
+                    selected_layer.pop_back();
+                }
+
+
+                s = combination.size();
+                for (int num = 0; num < s; ++num) {
+                    combination.pop_back();
+                }
+            }
+
+
+            layermap.insert(make_pair(k, layer_vec));
+        }
+    }
+
+    void initial_basisnet() {
+        m.populate_basisnet_funs(basis_net, basis_arguments);
+    }
+
+    
+
+    void simulate_ml() {
+        vector<double>  change_stat;   /// Change statistics for each edge
+        change_stat.resize(get_model_dim());   //need to be changed to the number of dimensions);
+        for (int e = 0; e < mlnetwork.layer_count(); ++e) {
+            all_interaction_layer.push_back(e);
+        }
+
+        double inner_prod = 0.0;
+        int max_dim = 0;
+        int para_dim = 0;
+        int s = 0;
+        double prop_prob, u;
+        int samp_num = 0;
+
+        std::random_device rd;
+        std::mt19937 g(rd());
+
+        std::random_device rand_dev;
+        //Rcpp::Rcout << "The random device is: " << rand_dev() << "\n";
+        std::mt19937 rand(random_seed);
+        //Rcpp::Rcout << "the random seed is: " << rand << "\n";
+        std::uniform_real_distribution<> runif(0.0, 1.0);
+        
+        // Populate the parameter index haspmap from lexicographical orders
+        compute_param_index();
+
+        // Populate the layer index haspmap for each edge
+        compute_layer_index();
+
+        // Populate the basis network first. The intial samp will use basis network.
+        initial_basisnet();
+
+        // Populate the layers given basis network.
+        initial_samp(); /// Sample the network with prob = 0.5 for each edge independently as an initial network
+
+        //Run burnin
+        bool flag;
+        for (int i = 0; i < mlnetwork.node_count(); ++i) {
+            for (int j = i + 1; j < mlnetwork.node_count(); ++j) {
+                if (basis_net.is_edge(i, j, 1)) {
+                    for (int upd_num = 0; upd_num < burnin; ++upd_num) {
+
+                        for (int k = 0; k < mlnetwork.layer_count(); ++k) {
+                            for (int p = 0; p < get_model_dim(); ++p) {
+                                change_stat[p] = 0;
+                            }
+
+                            vector<string> layer_ind = layermap[k];
+                            vector<int> layers;
+                            inner_prod = 0.0;
+                            for (auto ele : layer_ind) {
+                                layers.clear();
+                                para_dim = indexmap[ele];
+                            
+                                for (auto char_ele : ele) {
+                                    layers.push_back(int(char_ele - '0')); /// use char - '0' to convert char to integer.
+                                }
+                                change_stat[para_dim] = compute_change_stats(i, j, k, layers);
+                                inner_prod += theta[para_dim] * change_stat[para_dim];
+                            }
+                            prop_prob = 1 / (1 + exp(inner_prod));
+
+
+                            u = runif(rand);
+                            if (u <= prop_prob) {
+                                if (mlnetwork.is_edge(i, j, k)) {
+                                    mlnetwork.delete_edge(i, j, k);
+
+                                }
+                            }
+                            else {
+                                if (!mlnetwork.is_edge(i, j, k)) {
+                                    mlnetwork.add_edge(i, j, k);
+                                }
+                            }
+
+
+                            // Enforce h(x,y) = 1, use g(y = 1) = 0.333
+                            flag = false;
+                            for (int kk = 0; kk < mlnetwork.layer_count(); ++kk) {
+                                if (mlnetwork.is_edge(i, j, kk)) {
+                                    flag = true;
+                                    break;
+                                }
+                            }
+
+                            if (!flag) {
+                                mlnetwork.add_edge(i, j, k);
+                            }
+
+
+
+                        }
+                    }
+                }
+                else {
+                    for (int kk = 0; kk < mlnetwork.layer_count(); ++kk) {
+                        if (mlnetwork.is_edge(i, j, kk)) {
+                            mlnetwork.delete_edge(i, j, kk);
+                        }
+                    }
+
+                }
+            }
+        }
+
+        //select dyad for statistics tracking
+        int loc1 = 0;
+        int loc2 = 0;
+        double r1;
+        double r2;
+        int m1;
+        int m2;
+        //M = nCr(mlnetwork.layer_count(), 2);
+        //count.resize(mlnetwork.layer_count()+1);
+        count_cross.resize(mlnetwork.layer_count());
+        netCount_samp.resize(mlnetwork.layer_count());
+        crossLayerCount_samp.resize(mlnetwork.layer_count());
+        threewayCount_samp.resize(num_samples);
+
+
+        r1 = runif(rand);
+        r2 = runif(rand);
+        //Rcpp::Rcout << "u1 and u2 are: " << u1 << ", " << u2 << "\n";
+        /*
+        while (loc1 == loc2) {
+            loc1 = get_int(r1, mlnetwork.node_count());
+            loc2 = get_int(r2, mlnetwork.node_count());
+            r1 = runif(rand);
+            r2 = runif(rand);
+        }
+        Rcpp::Rcout << "\nselected dyads are: " << loc1 << ", " << loc2 << "\n";
+        */
+
+
+        for (int i = 0; i < mlnetwork.layer_count(); ++i) {
+            netCount_samp[i].resize(num_samples);
+        }
+
+        for (int i = 0; i < mlnetwork.layer_count(); ++i) {
+            crossLayerCount_samp[i].resize(mlnetwork.layer_count());
+            for (int j = 0; j < mlnetwork.layer_count(); ++j) {
+                crossLayerCount_samp[i][j].resize(num_samples);
+            }
+        }
+
+        s = 0;
+        while (samp_num < num_samples) {
+
+            count_net.assign(mlnetwork.layer_count(), 0);
+            count_threeway = 0;
+            for (int i = 0; i < mlnetwork.layer_count(); ++i) {
+                count_cross[i].resize(mlnetwork.layer_count());
+                for (int j = 0; j < mlnetwork.layer_count(); ++j) {
+                    count_cross[i][j].assign(1, 0);
+                }
+            }
+            //cout << "sim_ml check point 3\n";
+
+            for (int i = 0; i < mlnetwork.node_count(); ++i) {
+                for (int j = i + 1; j < mlnetwork.node_count(); ++j) {
+                    if (basis_net.is_edge(i, j, 1)) {
+                        for (int upd_num = 0; upd_num < interval; ++upd_num) {
+
+                            for (int k = 0; k < mlnetwork.layer_count(); ++k) {
+                                for (int p = 0; p < get_model_dim(); ++p) {
+                                    change_stat[p] = 0;
+                                }
+
+                                vector<string> layer_ind = layermap[k];
+                                vector<int> layers;
+                                
+                                inner_prod = 0.0;
+
+                                for (auto ele : layer_ind) {
+                                    para_dim = indexmap[ele];
+                                    layers.clear();
+                                    for (auto char_ele : ele) {
+                                        layers.push_back(int(char_ele - '0')); /// use char - '0' to convert char to integer.
+                                    }
+                                    change_stat[para_dim] = compute_change_stats(i, j, k, layers);
+                                    inner_prod += theta[para_dim] * change_stat[para_dim];
+                                }
+                                prop_prob = 1 / (1 + exp(inner_prod));
+
+
+
+                                u = runif(rand);
+                                if (u <= prop_prob) {
+                                    if (mlnetwork.is_edge(i, j, k)) {
+                                        mlnetwork.delete_edge(i, j, k);
+
+                                    }
+                                }
+                                else {
+                                    if (!mlnetwork.is_edge(i, j, k)) {
+                                        mlnetwork.add_edge(i, j, k);
+                                    }
+                                }
+
+
+                                // Enforce h(x,y) = 1, use g(y = 1) = 0.333
+                                flag = false;
+                                for (int kk = 0; kk < mlnetwork.layer_count(); ++kk) {
+                                    if (mlnetwork.is_edge(i, j, kk)) {
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!flag) {
+                                    mlnetwork.add_edge(i, j, k);
+                                }
+
+
+
+                            }
+                        }
+                    }
+                    else {
+                        for (int kk = 0; kk < mlnetwork.layer_count(); ++kk) {
+                            if (mlnetwork.is_edge(i, j, kk)) {
+                                mlnetwork.delete_edge(i, j, kk);
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            for (int i = 0; i < mlnetwork.node_count(); ++i) {
+                for (int j = i + 1; j < mlnetwork.node_count(); ++j) {
+                    //count the number of edges in each layer                    
+                    for (auto ele : mlnetwork.adj[i][j]) {
+                        count_net[ele] += 1;
+                    }
+
+
+
+
+                    //count the number of co-occurences between 2 layers
+
+                    for (auto ele : mlnetwork.adj[i][j]) {
+                        for (auto ele2 : mlnetwork.adj[i][j]) {
+                            if (ele >= ele2) continue;
+                            m1 = min(ele, ele2);
+                            m2 = max(ele, ele2);
+                            count_cross[m1][m2][0] += 1;
+                        }
+
+                    }
+
+                    // count the 3-way interactions
+                    if (mlnetwork.adj[i][j].size() == 3) count_threeway += 1;
+
+
+
+
+                }
+            }
+
+            for (int i = 0; i < mlnetwork.layer_count(); ++i) {
+                netCount_samp[i][samp_num] = count_net[i];
+
+            }
+
+            for (int i = 0; i < mlnetwork.layer_count() - 1; ++i) {
+                for (int j = i + 1; j < mlnetwork.layer_count(); ++j) {
+                    crossLayerCount_samp[i][j][samp_num] = count_cross[i][j][0];
+                }
+            }
+
+            threewayCount_samp[samp_num] = count_threeway;
+            samp_num += 1;
+
+
+
+
+
+            /*
+            //layer count for selected dyad
+            s = mlnetwork.adj[loc1][loc2].size();
+            count[s] += 1;
+           */
+
+
+           // print out the adjacent matrix of each sample
+           /*Rcpp::Rcout << "Sample " << samp_num + 1 << ": \n";
+           for (int node_i = 0; node_i < mlnetwork.node_count(); ++node_i) {
+               for (int node_j = node_i + 1; node_j < mlnetwork.node_count(); ++node_j) {
+                   for (int loc = 0; loc < mlnetwork.adj[node_i][node_j].size(); ++loc) {
+                       Rcpp::Rcout << node_i << ", " << node_j << ", " << mlnetwork.adj[node_i][node_j][loc] << "\n";
+                   }
+               }
+
+           }
+           Rcpp::Rcout << "\n";*/
+
+
+
+
+        }
+
+
+        /*Rcpp::Rcout << "Average number of edges in one layer: \n" << "Layer" << setw(8) << "count\n";
+        for (int i = 0; i < mlnetwork.layer_count();++i) {
+            Rcpp::Rcout << i << setw(8) << (double)accumulate(netCount_samp[i].begin(), netCount_samp[i].end(),0)/(double)num_samples << "\n";
+        }
+
+        Rcpp::Rcout << "Number of co-occurences between two layer: \n";
+        for (int i = 0;i < mlnetwork.layer_count() - 1;++i) {
+            for (int j = i + 1;j < mlnetwork.layer_count();++j) {
+                Rcpp::Rcout << "Layer " << i << ", " << j << " have " << crossLayerCount_samp[i][j][samp_num-1] << " co-occurences\n";
+            }
+        }*/
+
+        /*
+        Rcpp::Rcout << "distribution of layer count for selected dyad are:\n" << "#layers" << setw(8) << "count\n";
+        int iter = 0;
+        for (auto ele : count) {
+            Rcpp::Rcout << iter << setw(8) <<((double)ele)/((double)num_samples) << "\n";
+            ++iter;
+        }
+        */
+
+    }
+
+
+    ///uniformly initialize the sampler
+    void initial_samp() {
+        std::random_device rd;
+        std::mt19937 g(rd());
+
+        std::random_device rand_dev;
+        std::mt19937 rand(random_seed + 1); /// make this seed different from the seed for 
+        //Rcpp::Rcout << "the random seed in initial sampling is: " << rand << "\n";
+        std::uniform_real_distribution<> runif(0.0, 1.0);
+        for (int i = 0; i < mlnetwork.node_count(); ++i) {
+            for (int j = i + 1; j < mlnetwork.node_count(); ++j) {
+                if (basis_net.is_edge(i, j, 1)) {
+                    for (int k = 0; k < mlnetwork.layer_count(); ++k) {
+                        if (runif(rand) < 0.5) mlnetwork.add_edge(i, j, k);
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
+    int get_model_dim() {
+        return model_dim;
+    }
+
+
+    void set_theta(vector<double> vec) {
+        theta = vec;
+
+    }
+
+    void compute_sample_mean() {
+        rowvec col_mean(get_model_dim());
+        col_mean = arma::mean(samples, 0);
+        for (int p = 0; p < mean.size(); ++p) {
+            mean[p] = col_mean.at(p);
+        }
+    }
+
+
 
 
     // Returns factorial of n

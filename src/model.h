@@ -16,6 +16,10 @@
 #include "change_stats.h"
 #endif
 
+#ifndef _basis_net_
+#define _basis_net_
+#include "basis_net.h"
+#endif
 
 using namespace std;
 
@@ -23,34 +27,21 @@ using namespace std;
 class mod {
 
 public:
-    vector<string> model_terms;
-    vector<double (*)(int i, int j, mlnet& network, int k, int l)> change_stat_funs_ml;
+    string model_terms;
+    void (*populate_basisnet_funs)(mlnet& network, vector<double>& arguments) ;
 
 
 public:
-    mod(vector<string> mterms) {
-        model_terms.resize(mterms.size());
+    mod(string mterms) {
         model_terms = mterms;
-        change_stat_funs_ml.resize(get_num_terms());
-        int iter = 0;
-        int block_counter = 0;
-        int node_counter = 0;
-        for (string term : model_terms) {
-            
-            if (term == "ml_order2") { /// calculate change statistics for ml network with 2nd order cross-layer inetractions
-                change_stat_funs_ml[iter] = cs_order2;
-                iter += 1;
-            }
-            if (term == "ml_order3") { /// calculate change statistics for ml network with 3rd order cross-layer inetractions
-                change_stat_funs_ml[iter] = cs_order3;
-                iter += 1;
-            }
-        }
+        if (model_terms == "SBM") populate_basisnet_funs = generate_SBM;
+        if (model_terms == "LSM") populate_basisnet_funs = generate_LSM;
+        if (model_terms == "BER") populate_basisnet_funs = generate_BER;
+        
     }
 
-    int get_num_terms() {
-        int val = model_terms.size();
-        return val;
-    }
+    
+
+    
 
 };

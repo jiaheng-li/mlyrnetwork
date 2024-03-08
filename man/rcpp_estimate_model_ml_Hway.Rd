@@ -13,8 +13,10 @@ rcpp_estimate_model_ml_Hway(
   model_terms,
   rnum_nodes,
   rnum_layers,
+  rhighest_order,
   random_seeds,
-  g
+  arguments,
+  itermax
 )
 }
 \description{
