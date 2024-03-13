@@ -1,4 +1,47 @@
 
+#' Title
+#'
+#' @param theta 
+#' @param N 
+#' @param samp_num 
+#' @param burnin 
+#' @param k 
+#' @param H 
+#' @param mdim 
+#' @param mterm 
+#' @param intv 
+#' @param seed 
+#' @param iter_max 
+#' @param basis_arguments 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+est_ml <- function(NetMat,theta,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm = "BER",intv = 3,
+                    seed = 0, iter_max = 30000, basis_arguments = c(1,0)){
+  
+  
+  tic <- Sys.time()
+  result <- rcpp_estimate_model_ml_Hway(NetMat, samp_num,  burnin, intv, mdim, mterm, N, k,H, seed,basis_arguments, iter_max) 
+  dist_mat <- data.frame(result)
+  values <- rep(0,mdim)
+  for (i in c(1:mdim)){
+    values[i] <- dist_mat[i,1]
+  }
+  
+  
+  toc <- Sys.time()
+  
+  # Prepare result list 
+  res <- list(theta = theta,theta_est = values, 
+              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N)
+  
+  
+  
+  return(res)
+  
+}
 
 #' Title
 #'
@@ -98,7 +141,7 @@ sim_est_wrapper <- function(){
 #' @export
 #'
 #' @examples 
-er.simulate <- function(theta,N = 10,samp_num = 1,burnin = 100,k = 3,mdim,
+samp_ml <- function(theta,N = 10,samp_num = 1,burnin = 100,k = 3,mdim,
                        mterm = 'BER',intv = 3, H = 2,
                        seed = 0, basis_arguments = c(0.5,0)){
   

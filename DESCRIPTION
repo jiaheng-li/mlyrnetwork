@@ -10,7 +10,16 @@ License: GPL (>= 2)
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 Depends: ergm
-Imports: Rcpp (>= 1.0.10)
+Imports: 
+    GGally,
+    ggplot2,
+    ggpubr,
+    grid,
+    latentnet,
+    RColorBrewer,
+    Rcpp (>= 1.0.10),
+    reshape2,
+    sna
 LinkingTo: Rcpp, RcppArmadillo
 Suggests: 
     testthat (>= 3.0.0)

@@ -114,3 +114,10 @@ void generate_SBM( mlnet& basis_net, vector<double>& arguments) {
     }
 
 }
+
+void generate_other(mlnet& basis_net, vector<double>& arguments) {
+    for (int i = 0; i <= arguments.size() - 2; i += 2) {
+        basis_net.add_edge(arguments[i], arguments[i + 1], 1);
+    }
+
+}

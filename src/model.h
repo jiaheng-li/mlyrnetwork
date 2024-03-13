@@ -37,6 +37,7 @@ public:
         if (model_terms == "SBM") populate_basisnet_funs = generate_SBM;
         if (model_terms == "LSM") populate_basisnet_funs = generate_LSM;
         if (model_terms == "BER") populate_basisnet_funs = generate_BER;
+        if (model_terms == "other") populate_basisnet_funs = generate_other;
         
     }
 
