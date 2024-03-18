@@ -39,6 +39,7 @@ public:
     }
 
     void add_edge(int i, int j, int k) {
+        //if (is_edge(i, j, k)) return;
         adj[i][j].push_back(k);
         adj[j][i].push_back(k);
     }

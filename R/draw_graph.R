@@ -1,12 +1,3 @@
-# library(ergm)
-# library(GGally)
-# library(latentnet)
-# library(ggplot2)
-# library(ggpubr)
-# require(grid)
-# library(reshape2)
-# library(sna)
-# library(RColorBrewer)
 
 draw_mlnet <- function(mlnet,N){
   

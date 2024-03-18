@@ -9,7 +9,9 @@ Description: Sample, estimate and analyze multilayer network data according to n
 License: GPL (>= 2)
 Encoding: UTF-8
 RoxygenNote: 7.2.3
-Depends: ergm
+Depends: 
+    ergm,
+    R (>= 2.10)
 Imports: 
     GGally,
     ggplot2,
@@ -24,3 +26,4 @@ LinkingTo: Rcpp, RcppArmadillo
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+LazyData: true
