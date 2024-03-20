@@ -6,7 +6,6 @@
 \usage{
 est_ml(
   NetMat,
-  theta,
   N,
   samp_num = 1,
   burnin = 100,
@@ -21,8 +20,6 @@ est_ml(
 )
 }
 \arguments{
-\item{theta}{}
-
 \item{N}{}
 
 \item{samp_num}{}
@@ -44,6 +41,8 @@ est_ml(
 \item{iter_max}{}
 
 \item{basis_arguments}{}
+
+\item{theta}{}
 }
 \description{
 Title

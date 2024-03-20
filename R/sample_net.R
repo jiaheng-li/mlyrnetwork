@@ -18,7 +18,7 @@
 #' @export
 #'
 #' @examples
-est_ml <- function(NetMat,theta,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm = "BER",intv = 3,
+est_ml <- function(NetMat,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm = "BER",intv = 3,
                     seed = 0, iter_max = 30000, basis_arguments = c(1,0)){
   
   
@@ -34,7 +34,7 @@ est_ml <- function(NetMat,theta,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, 
   toc <- Sys.time()
   
   # Prepare result list 
-  res <- list(theta = theta,theta_est = values, 
+  res <- list(theta_est = values, 
               time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N)
   
   

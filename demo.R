@@ -5,43 +5,66 @@ devtools::document()
 
 
 set.seed(123456)
+seed <- sample(1:9999999,1,replace = FALSE)
 
 ## Parameter settings
 burnin <- 100
-k <- 3  # number of layers
-H <- 2  # highest order of interactions
+k <- 3  # number of layers, okay to change
+H <- 2  # highest order of interactions, okay to change (<= k)
 mdim <- 0
 for(i in 1:H){
   mdim <- mdim + choose(k,i)
 }
-mterm <- 'SBM'  # generate stochastic block model basis
-intv <- 3
-iter_max <- 30000
-# SBM parameters
+
+intv <- 3 # sampling iterval
+iter_max <- 30000 # maximum iterations for estimation
+
+
+# generate stochastic block model basis as an eample
+# can be set to 'Ber', 'LSM' and 'other'
+mterm <- 'SBM'  
+# set SBM parameters
 B <- 3
 p_within <- .25
 p_between <- .01 
+# set basis network arguments for SBM basis
+basis_arguments <- c(B, p_within ,p_between, seed)
 
 # generate theta for layers
 params <- matrix(runif(mdim,-1,1),1,mdim)
 params[,c(3,6)] = 0
 theta <- params[1,]
 
-N <- 100
-iter_max <- 30000
-seed <- sample(1:9999999,1,replace = FALSE)
-
-# set basis network arguments for SBM basis
-basis_arguments <- c(B, p_within ,p_between, seed)
+N <- 100 # number of nodes
 
 ## Sample a k-layer multilayer network
 mlnet <- samp_ml(theta,N = N, k = k, H = H ,mdim = mdim, seed = seed, mterm = 'SBM', basis_arguments = basis_arguments)
+
+## plot the k-layer multilayer network sampled above
 draw_mlnet(mlnet$net,N)
 
 
-## Sample and estimate a multilayer network, by default it is 
-estimates <- est_ml(NetMat = mlnet$net, theta=theta, N = N, k = k, H = H, mdim = mdim, mterm = mterm,
+## Sample and estimate the multilayer network sampled above
+estimates <- est_ml(NetMat = mlnet$net, N = N, k = k, H = H, mdim = mdim, mterm = mterm,
                      seed = seed, basis_arguments = basis_arguments) 
 
 print(estimates)
 
+
+## Examples of data analysis using the Lazega lawyer network data set
+obs <- compute_suffstats_Lazega() # compute the observed sufficient statistics from the Lazega network.
+
+# compute the basis network of Lazega
+unique_dyads <- unique(Lazega_lawyer_network[,1:2])
+unique_dyads_vec <- as.vector(t(unique_dyads))
+
+# estimate ERGM model parameters using MPLE.
+data_res <- est_ml(NetMat = Lazega_lawyer_network, N = 71, k = 3, H = 2, mdim = 6, mterm = 'other',
+       seed = seed, basis_arguments = unique_dyads_vec)  
+
+# obtain the estimated theta for Lazega network
+data_theta <- data_res$theta_est
+
+# m indicates the number of repetitions
+reproduced_suff <- reproduce_Lazega(m = 20 , theta = data_theta) # reproduce the Lazega network using the estimated parameters and the basis network induced from the observed network.
+draw_box_plot(reproduced_suff, obs)
