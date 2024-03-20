@@ -1,8 +1,8 @@
 
 draw_mlnet <- function(mlnet,N){
   
-  qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
-  col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+  qual_col_pals <- RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
+  col_vector <- unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
   
   k <- max(unique(mlnet[,3]))
   node_colors <- sample(col_vector, k)
@@ -21,14 +21,14 @@ draw_mlnet <- function(mlnet,N){
     }
     
     if(j == 1){
-      x = gplot.layout.fruchtermanreingold(net[[j]], NULL)
+      x = sna::gplot.layout.fruchtermanreingold(net[[j]], NULL)
     }
          
     net[[j]] %v% "x" = x[, 1]
     net[[j]] %v% "y" = x[, 2]
-    fig[[j]] <- ggnet2(net[[j]], node.size = 3, node.color = node_colors[j], mode = c("x", "y") ) + 
-    labs(title = paste0("Layer ", as.character(j))) +  ## Change the graph title here
-    theme(plot.title = element_text(hjust = 0.5,size = 10))   ## Change the font size here  
+    fig[[j]] <- GGally::ggnet2(net[[j]], node.size = 3, node.color = node_colors[j], mode = c("x", "y") ) + 
+      ggplot2::labs(title = paste0("Layer ", as.character(j))) +  ## Change the graph title here
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5,size = 10))   ## Change the font size here  
         
   }
   

@@ -3,11 +3,12 @@ rm(list = ls())
 library("devtools")
 devtools::document()
 
+
 set.seed(123456)
 
 ## Parameter settings
 burnin <- 100
-k <- 4  # number of layers
+k <- 3  # number of layers
 H <- 2  # highest order of interactions
 mdim <- 0
 for(i in 1:H){
