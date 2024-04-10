@@ -17,11 +17,13 @@ Imports:
     ggplot2,
     ggpubr,
     grid,
+    insight,
     latentnet,
     RColorBrewer,
     Rcpp (>= 1.0.10),
     reshape2,
-    sna
+    sna,
+    utils
 LinkingTo: Rcpp, RcppArmadillo
 Suggests: 
     testthat (>= 3.0.0)

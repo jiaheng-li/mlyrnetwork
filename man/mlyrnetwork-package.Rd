@@ -1,24 +1,24 @@
-\name{mlayernetwork-package}
-\alias{mlayernetwork-package}
-\alias{mlayernetwork}
+\name{mlyrnetwork-package}
+\alias{mlyrnetwork-package}
+\alias{mlyrnetwork}
 \docType{package}
 \title{
-\packageTitle{mlayernetwork}
+\packageTitle{mlyrnetwork}
 }
 \description{
-\packageDescription{mlayernetwork}
+\packageDescription{mlyrnetwork}
 }
 \details{
 
 The DESCRIPTION file:
-\packageDESCRIPTION{mlayernetwork}
-\packageIndices{mlayernetwork}
+\packageDESCRIPTION{mlyrnetwork}
+\packageIndices{mlyrnetwork}
 ~~ An overview of how to use the package, including the most important functions ~~
 }
 \author{
-\packageAuthor{mlayernetwork}
+\packageAuthor{mlyrnetwork}
 
-Maintainer: \packageMaintainer{mlayernetwork}
+Maintainer: \packageMaintainer{mlyrnetwork}
 }
 \references{
 ~~ Literature or other references for background information ~~

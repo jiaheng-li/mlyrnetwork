@@ -35,7 +35,7 @@ params <- matrix(runif(mdim,-1,1),1,mdim)
 params[,c(3,6)] = 0
 theta <- params[1,]
 
-N <- 100 # number of nodes
+N <- 30 # number of nodes
 
 ## Sample a k-layer multilayer network
 mlnet <- samp_ml(theta,N = N, k = k, H = H ,mdim = mdim, seed = seed, mterm = 'SBM', basis_arguments = basis_arguments)
@@ -48,7 +48,11 @@ draw_mlnet(mlnet$net,N)
 estimates <- est_ml(NetMat = mlnet$net, N = N, k = k, H = H, mdim = mdim, mterm = mterm,
                      seed = seed, basis_arguments = basis_arguments) 
 
-print(estimates)
+summary_est(estimates)
+
+## Examples of invalid input
+est_ml(NetMat = mlnet$net, N = N, k = k, H = k+1, mdim = mdim, mterm = mterm,
+       seed = seed, basis_arguments = basis_arguments) 
 
 
 ## Examples of data analysis using the Lazega lawyer network data set
@@ -64,6 +68,7 @@ data_res <- est_ml(NetMat = Lazega_lawyer_network, N = 71, k = 3, H = 2, mdim = 
 
 # obtain the estimated theta for Lazega network
 data_theta <- data_res$theta_est
+summary_est(data_res)
 
 # m indicates the number of repetitions
 reproduced_suff <- reproduce_Lazega(m = 20 , theta = data_theta) # reproduce the Lazega network using the estimated parameters and the basis network induced from the observed network.

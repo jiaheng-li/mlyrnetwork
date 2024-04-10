@@ -21,7 +21,12 @@
 est_ml <- function(NetMat,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm = "BER",intv = 3,
                     seed = 0, iter_max = 30000, basis_arguments = c(1,0)){
   
-  
+  if(N <= 1){
+    stop("N must be greater than one")
+  }
+  if(k < H){
+    stop("H must not be greater than k")
+  }
   tic <- Sys.time()
   result <- rcpp_estimate_model_ml_Hway(NetMat, samp_num,  burnin, intv, mdim, mterm, N, k,H, seed,basis_arguments, iter_max) 
   dist_mat <- data.frame(result)
@@ -35,13 +40,15 @@ est_ml <- function(NetMat,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm 
   
   # Prepare result list 
   res <- list(theta_est = values, 
-              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N)
+              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N, num_layers = k, mod_dim = mdim, interaction_order = H)
   
   
   
   return(res)
   
 }
+
+
 
 #' Title
 #'
