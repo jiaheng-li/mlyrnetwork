@@ -30,3 +30,25 @@ summary_est <- function(res_list){
   
   
 }
+
+
+#' Title
+#'
+#' @param res_list 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+summary_sim <- function(res_list){
+  suff_mat <- res_list$suff_stats
+  df <- data.frame(t(round(suff_mat[,3])))
+  names <- c('s1','s2','s3','s12','s13','s23','s123')
+
+  colnames(df) <- names
+  table <- insight::export_table(insight::format_table(df))
+  return(table)
+  
+  
+  
+}

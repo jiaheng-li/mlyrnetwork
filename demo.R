@@ -39,6 +39,7 @@ N <- 30 # number of nodes
 
 ## Sample a k-layer multilayer network
 mlnet <- samp_ml(theta,N = N, k = k, H = H ,mdim = mdim, seed = seed, mterm = 'SBM', basis_arguments = basis_arguments)
+summary_sim(mlnet)
 
 ## plot the k-layer multilayer network sampled above
 draw_mlnet(mlnet$net,N)

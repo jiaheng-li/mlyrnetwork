@@ -1,4 +1,13 @@
 
+#' Title
+#'
+#' @param mlnet 
+#' @param N 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 draw_mlnet <- function(mlnet,N){
   
   qual_col_pals <- RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
