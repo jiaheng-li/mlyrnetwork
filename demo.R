@@ -35,7 +35,7 @@ params <- matrix(runif(mdim,-1,1),1,mdim)
 params[,c(3,6)] = 0
 theta <- params[1,]
 
-N <- 30 # number of nodes
+N <- 100 # number of nodes
 
 ## Sample a k-layer multilayer network
 mlnet <- samp_ml(theta,N = N, k = k, H = H ,mdim = mdim, seed = seed, mterm = 'SBM', basis_arguments = basis_arguments)
@@ -46,10 +46,11 @@ draw_mlnet(mlnet$net,N)
 
 
 ## Sample and estimate the multilayer network sampled above
+### Make the output of est_ml a class ###
 estimates <- est_ml(NetMat = mlnet$net, N = N, k = k, H = H, mdim = mdim, mterm = mterm,
                      seed = seed, basis_arguments = basis_arguments) 
 
-summary_est(estimates)
+summary_est(estimates) ## Add standard errors
 
 ## Examples of invalid input
 est_ml(NetMat = mlnet$net, N = N, k = k, H = k+1, mdim = mdim, mterm = mterm,
@@ -72,5 +73,6 @@ data_theta <- data_res$theta_est
 summary_est(data_res)
 
 # m indicates the number of repetitions
+### change function name, don't use reproduce ###
 reproduced_suff <- reproduce_Lazega(m = 20 , theta = data_theta) # reproduce the Lazega network using the estimated parameters and the basis network induced from the observed network.
 draw_box_plot(reproduced_suff, obs)
