@@ -11,6 +11,21 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// rcpp_compute_dyad_suffstats
+List rcpp_compute_dyad_suffstats(IntegerMatrix RNETWORK, IntegerVector rmodel_dim, IntegerVector rnum_nodes, IntegerVector rnum_layers, IntegerVector rhighest_order);
+RcppExport SEXP _mlyrnetwork_rcpp_compute_dyad_suffstats(SEXP RNETWORKSEXP, SEXP rmodel_dimSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rhighest_orderSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type RNETWORK(RNETWORKSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rmodel_dim(rmodel_dimSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rnum_nodes(rnum_nodesSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rnum_layers(rnum_layersSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rhighest_order(rhighest_orderSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_compute_dyad_suffstats(RNETWORK, rmodel_dim, rnum_nodes, rnum_layers, rhighest_order));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_estimate_model_ml_Hway
 List rcpp_estimate_model_ml_Hway(IntegerMatrix RNETWORK, IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, IntegerVector rhighest_order, IntegerVector random_seeds, NumericVector arguments, IntegerVector itermax);
 RcppExport SEXP _mlyrnetwork_rcpp_estimate_model_ml_Hway(SEXP RNETWORKSEXP, SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rhighest_orderSEXP, SEXP random_seedsSEXP, SEXP argumentsSEXP, SEXP itermaxSEXP) {
@@ -99,6 +114,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_mlyrnetwork_rcpp_compute_dyad_suffstats", (DL_FUNC) &_mlyrnetwork_rcpp_compute_dyad_suffstats, 5},
     {"_mlyrnetwork_rcpp_estimate_model_ml_Hway", (DL_FUNC) &_mlyrnetwork_rcpp_estimate_model_ml_Hway, 12},
     {"_mlyrnetwork_rcpp_simulate_ml_Hway", (DL_FUNC) &_mlyrnetwork_rcpp_simulate_ml_Hway, 11},
     {"_mlyrnetwork_rcpparma_hello_world", (DL_FUNC) &_mlyrnetwork_rcpparma_hello_world, 0},

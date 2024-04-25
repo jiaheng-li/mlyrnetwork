@@ -1611,6 +1611,7 @@ public:
     // Store all interactive layers for a given edge
     unordered_map<int, vector<string> > layermap;
     vector<double> basis_arguments;
+    
 
 
 public:
@@ -1630,6 +1631,9 @@ public:
         random_seed = rand_seed;
         H = highest_order;
         basis_arguments = arguments;
+        for (int e = 0; e < mlnetwork.layer_count(); ++e) {
+            all_interaction_layer.push_back(e);
+        }
 
     }
 
@@ -1738,9 +1742,7 @@ public:
     void simulate_ml() {
         vector<double>  change_stat;   /// Change statistics for each edge
         change_stat.resize(get_model_dim());   //need to be changed to the number of dimensions);
-        for (int e = 0; e < mlnetwork.layer_count(); ++e) {
-            all_interaction_layer.push_back(e);
-        }
+        
 
         double inner_prod = 0.0;
         int max_dim = 0;

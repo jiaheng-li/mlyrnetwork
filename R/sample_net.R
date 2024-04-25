@@ -43,7 +43,7 @@ est_ml <- function(NetMat,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm 
               time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N, num_layers = k, mod_dim = mdim, interaction_order = H)
   
   
-  
+  class(res) <- 'estimate_class'
   return(res)
   
 }
@@ -168,7 +168,7 @@ samp_ml <- function(theta,N = 10,samp_num = 1,burnin = 100,k = 3,mdim,
               time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N)
   
   
-  
+  class(res) <- 'simulate_class'
   return(res)
   
 }

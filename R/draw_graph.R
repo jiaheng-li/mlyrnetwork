@@ -18,7 +18,7 @@ draw_mlnet <- function(mlnet,N){
   fig <- vector("list",length = k)
   net <- list()
   for(j in 1:k){
-    layer <- mlnet[mlnet[,3] == j,]
+    layer <- matrix(mlnet[mlnet[,3] == j,], , 3)
     n <- length(layer[,1])
     net <- append(net,list(matrix(0,N,N)))
     for(i in 1:n){

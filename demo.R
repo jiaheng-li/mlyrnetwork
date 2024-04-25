@@ -46,11 +46,11 @@ draw_mlnet(mlnet$net,N)
 
 
 ## Sample and estimate the multilayer network sampled above
-### Make the output of est_ml a class ###
 estimates <- est_ml(NetMat = mlnet$net, N = N, k = k, H = H, mdim = mdim, mterm = mterm,
                      seed = seed, basis_arguments = basis_arguments) 
 
-summary_est(estimates) ## Add standard errors
+### Add standard errors ###
+summary_est(estimates) 
 
 ## Examples of invalid input
 est_ml(NetMat = mlnet$net, N = N, k = k, H = k+1, mdim = mdim, mterm = mterm,
@@ -73,6 +73,10 @@ data_theta <- data_res$theta_est
 summary_est(data_res)
 
 # m indicates the number of repetitions
-### change function name, don't use reproduce ###
-reproduced_suff <- reproduce_Lazega(m = 20 , theta = data_theta) # reproduce the Lazega network using the estimated parameters and the basis network induced from the observed network.
-draw_box_plot(reproduced_suff, obs)
+simulated_suff <- simulate_suffstats(data = Lazega_lawyer_network, m = 20 , theta = data_theta) # reproduce the Lazega network using the estimated parameters and the basis network induced from the observed network.
+draw_box_plot(simulated_suff, obs)
+
+
+## test of sufficient statistic functions 
+a = rcpp_compute_dyad_suffstats(mlnet$net, mdim, N, k, H)
+colSums(a$dyad_suffstats)

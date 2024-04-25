@@ -9,6 +9,7 @@
 #include <omp.h>
 #include <sstream>
 #include <vector>
+#include <set>  
 
 
 #ifndef _estimation_class_
@@ -24,6 +25,158 @@
 
 using namespace std;
 using namespace Rcpp;
+
+
+vector<int> all_interaction_layer;
+vector<int> combination;
+vector<vector <int> > selected_layer;
+// Select all combinations of k layers, where k is the order of interaction
+void select_layer(int offset, int k) {
+    if (k == 0) {
+        selected_layer.push_back(combination);
+        return;
+    }
+    for (int i = offset; i <= all_interaction_layer.size() - k; ++i) {
+        combination.push_back(all_interaction_layer[i]);
+        select_layer(i + 1, k - 1);
+        combination.pop_back();
+    }
+}
+
+// Compute the parameter index from lexicographical orders
+void compute_param_index(int K, int H, unordered_map<string, int>& indexmap) {
+    int param_ind = 0;
+    for (int h = 0; h < K; ++h) {
+        indexmap.insert(make_pair(to_string(h), param_ind++));
+    }
+    for (int h = 2; h <= H; ++h) {
+        select_layer(0, h);
+        for (auto ele : selected_layer)
+        {
+            string lexi_ind = "";
+            for (auto ele2 : ele) {
+                lexi_ind += to_string(ele2);
+            }
+            indexmap.insert(make_pair(lexi_ind, param_ind++));
+        }
+
+
+        // Re-initialize for next use
+        int s = selected_layer.size();
+        for (int num = 0; num < s; ++num) {
+            selected_layer.pop_back();
+        }
+
+
+        s = combination.size();
+        for (int num = 0; num < s; ++num) {
+            combination.pop_back();
+        }
+    }
+}
+
+
+
+//' @title rcpp_compute_dyad_suffstats
+//' @description
+//' Compute dyadic sufficient statistics for multilayer networks with up to H-way interactions
+//' @name rcpp_compute_dyad_suffstats
+//' @param
+//' @examples
+//' 
+//'
+//' @export
+// [[Rcpp::export]]
+List rcpp_compute_dyad_suffstats(IntegerMatrix RNETWORK, IntegerVector rmodel_dim,
+    IntegerVector rnum_nodes, IntegerVector rnum_layers, IntegerVector rhighest_order) {
+
+    int model_dim = rmodel_dim[0];
+    int num_nodes = rnum_nodes[0];
+    int num_layers = rnum_layers[0];
+    int highest_order = rhighest_order[0];
+    int num_of_dyads = num_nodes * (num_nodes - 1) / 2;
+    NumericMatrix dyad_suffstats(num_of_dyads, 2+model_dim);
+    int node_i = 0;
+    int node_j = 1;
+    set<int> edges;
+    string lexi_ind;
+    char char_ele;
+    set<int> edge_set;
+    bool flag;
+    // Store the mapping between lexicographical orders (under same order of interactions) and parameter indeces.
+    unordered_map<string, int> indexmap;
+    unordered_map<string, set<int>> dyadmap;
+    
+    for (int e = 0; e < num_layers; ++e) {
+        all_interaction_layer.push_back(e);
+    }
+    compute_param_index(num_layers, highest_order, indexmap);
+
+    for (int i = 0; i < RNETWORK.nrow(); ++i) {
+        if (node_i == RNETWORK(i, 0) - 1 && node_j == RNETWORK(i, 1) - 1) edges.insert(RNETWORK(i, 2) - 1);
+        else {
+            lexi_ind = "";
+            lexi_ind = to_string(node_i) + to_string(node_j);
+            dyadmap.insert(make_pair(lexi_ind, edges));
+            edges.clear();
+
+            node_i = RNETWORK(i, 0) - 1;
+            node_j = RNETWORK(i, 1) - 1;
+            i--;
+        }
+        //for (auto set_ele : edges) {
+          //  cout << set_ele << ',' << endl;
+        //}
+    }
+
+    // Add the last dyad.
+    lexi_ind = to_string(node_i) + to_string(node_j);
+    dyadmap.insert(make_pair(lexi_ind, edges));
+
+    int row = 0;
+    string node_ind = "";
+    int param_dim = 0;
+    for (int i = 0; i < num_nodes - 1; ++i) {
+        for (int j = i+1; j < num_nodes; ++j) {
+            
+            dyad_suffstats(row, 0) = i+1;
+            dyad_suffstats(row, 1) = j+1;
+            node_ind = to_string(i) + to_string(j);
+            for (auto ele = indexmap.begin() ; ele != indexmap.end(); ele++) {
+                lexi_ind = ele->first;
+                //cout << lexi_ind << endl;
+                edge_set = dyadmap[node_ind];
+                //for (auto set_ele : edge_set) {
+                //    cout << set_ele << ',';
+                //}
+                //cout << endl;
+                
+                for (int iter = 0; iter < lexi_ind.size(); ++iter) {
+                    flag = false;
+                    char_ele = lexi_ind[iter];
+                    if (edge_set.find(int(char_ele - '0')) == edge_set.end()) {
+                        flag = true;
+                        break;
+                    }
+
+                }
+                param_dim = indexmap[lexi_ind];
+                if (flag) dyad_suffstats(row, 2+param_dim) = 0;
+                else dyad_suffstats(row, 2+param_dim) = 1;
+            }
+            row++;
+        }
+    }
+
+    for (int e = 0; e < all_interaction_layer.size(); ++e) {
+        all_interaction_layer.pop_back();
+    }
+
+    List return_list = List::create(Named("dyad_suffstats") = dyad_suffstats);
+
+    return return_list;
+
+}
 
 //' @title rcpp_estimate_model_ml_Hway
 //' @description

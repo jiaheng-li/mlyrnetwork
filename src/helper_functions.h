@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <Rcpp.h> 
 #include <RcppArmadillo.h>
+#include <unordered_map>
 using namespace std;
 
 

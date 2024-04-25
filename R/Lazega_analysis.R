@@ -81,7 +81,7 @@ compute_suffstats_Lazega <- function(net_data = Lazega_lawyer_network, N = 71){
 #' @export
 #'
 #' @examples
-reproduce_Lazega <- function(m = 10, theta = c(-1.4497737, -3.3336582, -2.6945731,  1.8011888,  0.2176545,  2.4582079)){
+simulate_suffstats <- function(data = Lazega_lawyer_network, m = 10, theta = c(-1.4497737, -3.3336582, -2.6945731,  1.8011888,  0.2176545,  2.4582079)){
   reproduced_suff <- matrix(0,m,7)
   seeds <- sample(1:9999999,m,replace = FALSE)
   sim_suff <- matrix(0,m, 7)
