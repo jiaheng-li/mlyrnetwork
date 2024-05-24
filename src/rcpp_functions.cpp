@@ -26,7 +26,7 @@
 using namespace std;
 using namespace Rcpp;
 
-
+/*
 vector<int> all_interaction_layer;
 vector<int> combination;
 vector<vector <int> > selected_layer;
@@ -43,6 +43,7 @@ void select_layer(int offset, int k) {
     }
 }
 
+
 // Compute the parameter index from lexicographical orders
 void compute_param_index(int K, int H, unordered_map<string, int>& indexmap) {
     int param_ind = 0;
@@ -55,7 +56,7 @@ void compute_param_index(int K, int H, unordered_map<string, int>& indexmap) {
         {
             string lexi_ind = "";
             for (auto ele2 : ele) {
-                lexi_ind += to_string(ele2);
+                lexi_ind += to_string(ele2) + "+";
             }
             indexmap.insert(make_pair(lexi_ind, param_ind++));
         }
@@ -74,7 +75,7 @@ void compute_param_index(int K, int H, unordered_map<string, int>& indexmap) {
         }
     }
 }
-
+*/
 
 
 //' @title rcpp_compute_dyad_suffstats
@@ -87,36 +88,44 @@ void compute_param_index(int K, int H, unordered_map<string, int>& indexmap) {
 //'
 //' @export
 // [[Rcpp::export]]
-List rcpp_compute_dyad_suffstats(IntegerMatrix RNETWORK, IntegerVector rmodel_dim,
-    IntegerVector rnum_nodes, IntegerVector rnum_layers, IntegerVector rhighest_order) {
+List rcpp_compute_dyad_suffstats(IntegerMatrix RNETWORK, IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval,
+    IntegerVector rmodel_dim, StringVector model_terms,
+    IntegerVector rnum_nodes, IntegerVector rnum_layers,
+    int rhighest_order, int rand_seed, NumericVector arguments) {
 
+
+    int samp_num = rsamp_num[0];
+    int burnin = rburnin[0];
+    int interval = rinterval[0];
     int model_dim = rmodel_dim[0];
     int num_nodes = rnum_nodes[0];
     int num_layers = rnum_layers[0];
-    int highest_order = rhighest_order[0];
+    int highest_order = rhighest_order;
+    int random_seed = rand_seed;
+    vector<double> basis_arguments;
+    string mterms = Rcpp::as<string>(model_terms);
     int num_of_dyads = num_nodes * (num_nodes - 1) / 2;
     NumericMatrix dyad_suffstats(num_of_dyads, 2+model_dim);
     int node_i = 0;
     int node_j = 1;
     set<int> edges;
     string lexi_ind;
-    char char_ele;
+    string char_ele;
     set<int> edge_set;
     bool flag;
     // Store the mapping between lexicographical orders (under same order of interactions) and parameter indeces.
-    unordered_map<string, int> indexmap;
+    //unordered_map<string, int> indexmap;
     unordered_map<string, set<int>> dyadmap;
+    sim_ml_Hway sim_obj(samp_num, burnin, interval, model_dim, mterms, num_nodes, num_layers, highest_order, random_seed, basis_arguments);
     
-    for (int e = 0; e < num_layers; ++e) {
-        all_interaction_layer.push_back(e);
-    }
-    compute_param_index(num_layers, highest_order, indexmap);
+    
+    sim_obj.compute_param_index();
 
     for (int i = 0; i < RNETWORK.nrow(); ++i) {
         if (node_i == RNETWORK(i, 0) - 1 && node_j == RNETWORK(i, 1) - 1) edges.insert(RNETWORK(i, 2) - 1);
         else {
             lexi_ind = "";
-            lexi_ind = to_string(node_i) + to_string(node_j);
+            lexi_ind = to_string(node_i) + "+" + to_string(node_j);
             dyadmap.insert(make_pair(lexi_ind, edges));
             edges.clear();
 
@@ -130,7 +139,7 @@ List rcpp_compute_dyad_suffstats(IntegerMatrix RNETWORK, IntegerVector rmodel_di
     }
 
     // Add the last dyad.
-    lexi_ind = to_string(node_i) + to_string(node_j);
+    lexi_ind = to_string(node_i) + "+" + to_string(node_j);
     dyadmap.insert(make_pair(lexi_ind, edges));
 
     int row = 0;
@@ -141,26 +150,28 @@ List rcpp_compute_dyad_suffstats(IntegerMatrix RNETWORK, IntegerVector rmodel_di
             
             dyad_suffstats(row, 0) = i+1;
             dyad_suffstats(row, 1) = j+1;
-            node_ind = to_string(i) + to_string(j);
-            for (auto ele = indexmap.begin() ; ele != indexmap.end(); ele++) {
+            node_ind = to_string(i) + "+" + to_string(j);
+            edge_set = dyadmap[node_ind];
+            
+            for (auto ele = sim_obj.indexmap.begin() ; ele != sim_obj.indexmap.end(); ele++) {
                 lexi_ind = ele->first;
-                //cout << lexi_ind << endl;
-                edge_set = dyadmap[node_ind];
-                //for (auto set_ele : edge_set) {
-                //    cout << set_ele << ',';
-                //}
-                //cout << endl;
                 
                 for (int iter = 0; iter < lexi_ind.size(); ++iter) {
                     flag = false;
-                    char_ele = lexi_ind[iter];
-                    if (edge_set.find(int(char_ele - '0')) == edge_set.end()) {
+                    while (lexi_ind[iter] != '+') { // use '+' here instead of "" becasue lexi_ind[iter] is a char 
+                        char_ele += lexi_ind[iter];
+                        iter++;
+                    }
+                    
+                    if (edge_set.find(stoi(char_ele)) == edge_set.end()) {
                         flag = true;
+                        char_ele = "";
                         break;
                     }
+                    char_ele = "";
 
                 }
-                param_dim = indexmap[lexi_ind];
+                param_dim = sim_obj.indexmap[lexi_ind];
                 if (flag) dyad_suffstats(row, 2+param_dim) = 0;
                 else dyad_suffstats(row, 2+param_dim) = 1;
             }
@@ -168,15 +179,14 @@ List rcpp_compute_dyad_suffstats(IntegerMatrix RNETWORK, IntegerVector rmodel_di
         }
     }
 
-    for (int e = 0; e < all_interaction_layer.size(); ++e) {
-        all_interaction_layer.pop_back();
-    }
+    
 
     List return_list = List::create(Named("dyad_suffstats") = dyad_suffstats);
 
     return return_list;
 
 }
+
 
 //' @title rcpp_estimate_model_ml_Hway
 //' @description

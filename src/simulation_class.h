@@ -1609,7 +1609,7 @@ public:
     // Store the mapping between lexicographical orders (under same order of interactions) and parameter indeces.
     unordered_map<string, int> indexmap;
     // Store all interactive layers for a given edge
-    unordered_map<int, vector<string> > layermap;
+    unordered_map<int, set<set<int>> > layermap;
     vector<double> basis_arguments;
     
 
@@ -1631,6 +1631,7 @@ public:
         random_seed = rand_seed;
         H = highest_order;
         basis_arguments = arguments;
+        all_interaction_layer.clear();
         for (int e = 0; e < mlnetwork.layer_count(); ++e) {
             all_interaction_layer.push_back(e);
         }
@@ -1674,7 +1675,7 @@ public:
             {
                 string lexi_ind = "";
                 for (auto ele2 : ele) {
-                    lexi_ind += to_string(ele2);
+                    lexi_ind += to_string(ele2) + "+";
                 }
                 indexmap.insert(make_pair(lexi_ind, param_ind++));
             }
@@ -1697,22 +1698,21 @@ public:
     // Compute the index of layers associated with each edge
     void compute_layer_index() {
         int param_ind = 0;
-        vector<string> layer_vec;
+        set<set<int>> layer_vec;
         for (int k = 0; k < mlnetwork.layer_count(); k++) {
             layer_vec.clear();
-            layer_vec.push_back(to_string(k));
+            set<int> layer_ind = { k };
+            layer_vec.insert(layer_ind);
             for (int h = 1; h < H; ++h) {
                 select_layer(0, h);
                 for (auto ele : selected_layer) {
-                    if (binary_search(ele.begin(), ele.end(), k)) continue;
-                    string layer_ind = "";
-                    vector<int> layer_ele = ele;
-                    layer_ele.push_back(k);
-                    sort(layer_ele.begin(), layer_ele.end());
-                    for (auto ele2 : layer_ele) {
-                        layer_ind += to_string(ele2);
+                    layer_ind.clear();
+                    layer_ind.insert(k);
+                    for (auto ele2 : ele) {
+
+                        layer_ind.insert(ele2);
                     }
-                    layer_vec.push_back(layer_ind);
+                    layer_vec.insert(layer_ind);
                 }
 
                 // Re-initialize for next use
@@ -1772,6 +1772,10 @@ public:
         // Populate the layers given basis network.
         initial_samp(); /// Sample the network with prob = 0.5 for each edge independently as an initial network
 
+        set<set<int>> layer_ind;
+        string layer_ele;
+        vector<int> layers;
+
         //Run burnin
         bool flag;
         for (int i = 0; i < mlnetwork.node_count(); ++i) {
@@ -1784,18 +1788,22 @@ public:
                                 change_stat[p] = 0;
                             }
 
-                            vector<string> layer_ind = layermap[k];
-                            vector<int> layers;
+                            layer_ind = layermap[k];
+                            string layer_ele = "";
+                            
                             inner_prod = 0.0;
                             for (auto ele : layer_ind) {
-                                layers.clear();
-                                para_dim = indexmap[ele];
+                                for (auto ele2 : ele) {
+                                    layer_ele += to_string(ele2) + "+";
+                                }
+                                para_dim = indexmap[layer_ele];
                             
-                                for (auto char_ele : ele) {
-                                    layers.push_back(int(char_ele - '0')); /// use char - '0' to convert char to integer.
+                                for (auto ele2 : ele) {
+                                    layers.push_back(ele2); 
                                 }
                                 change_stat[para_dim] = compute_change_stats(i, j, k, layers);
                                 inner_prod += theta[para_dim] * change_stat[para_dim];
+                                layers.clear();
                             }
                             prop_prob = 1 / (1 + exp(inner_prod));
 
@@ -1906,19 +1914,22 @@ public:
                                     change_stat[p] = 0;
                                 }
 
-                                vector<string> layer_ind = layermap[k];
-                                vector<int> layers;
-                                
+                                layer_ind = layermap[k];
+                                layer_ele = "";
+                                layers.clear();
                                 inner_prod = 0.0;
-
                                 for (auto ele : layer_ind) {
-                                    para_dim = indexmap[ele];
-                                    layers.clear();
-                                    for (auto char_ele : ele) {
-                                        layers.push_back(int(char_ele - '0')); /// use char - '0' to convert char to integer.
+                                    for (auto ele2 : ele) {
+                                        layer_ele += to_string(ele2) + "+";
+                                    }
+                                    para_dim = indexmap[layer_ele];
+
+                                    for (auto ele2 : ele) {
+                                        layers.push_back(ele2); 
                                     }
                                     change_stat[para_dim] = compute_change_stats(i, j, k, layers);
                                     inner_prod += theta[para_dim] * change_stat[para_dim];
+                                    layers.clear();
                                 }
                                 prop_prob = 1 / (1 + exp(inner_prod));
 

@@ -6,10 +6,16 @@
 \usage{
 rcpp_compute_dyad_suffstats(
   RNETWORK,
+  rsamp_num,
+  rburnin,
+  rinterval,
   rmodel_dim,
+  model_terms,
   rnum_nodes,
   rnum_layers,
-  rhighest_order
+  rhighest_order,
+  rand_seed,
+  arguments
 )
 }
 \description{

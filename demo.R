@@ -76,7 +76,49 @@ summary_est(data_res)
 simulated_suff <- simulate_suffstats(data = Lazega_lawyer_network, m = 20 , theta = data_theta) # reproduce the Lazega network using the estimated parameters and the basis network induced from the observed network.
 draw_box_plot(simulated_suff, obs)
 
+############################################################
+### test of sufficient statistic functions for each dyad ###
+############################################################
+rm(list = ls())
+setwd("C:/Users/ljhhe/OneDrive - Florida State University/GitHub/mlyrnetwork")
 
-## test of sufficient statistic functions 
-a = rcpp_compute_dyad_suffstats(mlnet$net, mdim, N, k, H)
+library("devtools")
+devtools::document()
+
+set.seed(123456)
+seed <- sample(1:9999999,1,replace = FALSE)
+
+## Parameter settings
+burnin <- 100
+k <- 4  # number of layers, okay to change
+H <- 3  # highest order of interactions, okay to change (<= k)
+mdim <- 0
+for(i in 1:H){
+  mdim <- mdim + choose(k,i)
+}
+
+intv <- 3 # sampling iterval
+iter_max <- 30000 # maximum iterations for estimation
+
+
+# generate stochastic block model basis as an example
+# can be set to 'Ber', 'LSM' and 'other'
+mterm <- 'SBM'  
+# set SBM parameters
+B <- 3
+p_within <- .25
+p_between <- .01 
+# set basis network arguments for SBM basis
+basis_arguments <- c(B, p_within ,p_between, seed)
+
+# generate theta for layers
+params <- matrix(runif(mdim,-1,1),1,mdim)
+params[,c(3,6)] = 0
+theta <- params[1,]
+
+N <- 300 # number of nodes
+mlnet <- samp_ml(theta,N = N, k = k, H = H ,mdim = mdim, seed = seed, mterm = 'SBM', basis_arguments = basis_arguments)
+
+a = rcpp_compute_dyad_suffstats(mlnet$net, 1, 100, intv, mdim, mterm, N, k, H, seed, basis_arguments)
 colSums(a$dyad_suffstats)
+mlnet$suff_stats

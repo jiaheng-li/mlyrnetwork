@@ -10,8 +10,8 @@
 #' 
 #'
 #' @export
-rcpp_compute_dyad_suffstats <- function(RNETWORK, rmodel_dim, rnum_nodes, rnum_layers, rhighest_order) {
-    .Call(`_mlyrnetwork_rcpp_compute_dyad_suffstats`, RNETWORK, rmodel_dim, rnum_nodes, rnum_layers, rhighest_order)
+rcpp_compute_dyad_suffstats <- function(RNETWORK, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rhighest_order, rand_seed, arguments) {
+    .Call(`_mlyrnetwork_rcpp_compute_dyad_suffstats`, RNETWORK, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rhighest_order, rand_seed, arguments)
 }
 
 #' @title rcpp_estimate_model_ml_Hway

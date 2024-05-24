@@ -12,17 +12,23 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // rcpp_compute_dyad_suffstats
-List rcpp_compute_dyad_suffstats(IntegerMatrix RNETWORK, IntegerVector rmodel_dim, IntegerVector rnum_nodes, IntegerVector rnum_layers, IntegerVector rhighest_order);
-RcppExport SEXP _mlyrnetwork_rcpp_compute_dyad_suffstats(SEXP RNETWORKSEXP, SEXP rmodel_dimSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rhighest_orderSEXP) {
+List rcpp_compute_dyad_suffstats(IntegerMatrix RNETWORK, IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval, IntegerVector rmodel_dim, StringVector model_terms, IntegerVector rnum_nodes, IntegerVector rnum_layers, int rhighest_order, int rand_seed, NumericVector arguments);
+RcppExport SEXP _mlyrnetwork_rcpp_compute_dyad_suffstats(SEXP RNETWORKSEXP, SEXP rsamp_numSEXP, SEXP rburninSEXP, SEXP rintervalSEXP, SEXP rmodel_dimSEXP, SEXP model_termsSEXP, SEXP rnum_nodesSEXP, SEXP rnum_layersSEXP, SEXP rhighest_orderSEXP, SEXP rand_seedSEXP, SEXP argumentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerMatrix >::type RNETWORK(RNETWORKSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rsamp_num(rsamp_numSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rburnin(rburninSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rinterval(rintervalSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type rmodel_dim(rmodel_dimSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type model_terms(model_termsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type rnum_nodes(rnum_nodesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type rnum_layers(rnum_layersSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type rhighest_order(rhighest_orderSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_compute_dyad_suffstats(RNETWORK, rmodel_dim, rnum_nodes, rnum_layers, rhighest_order));
+    Rcpp::traits::input_parameter< int >::type rhighest_order(rhighest_orderSEXP);
+    Rcpp::traits::input_parameter< int >::type rand_seed(rand_seedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type arguments(argumentsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_compute_dyad_suffstats(RNETWORK, rsamp_num, rburnin, rinterval, rmodel_dim, model_terms, rnum_nodes, rnum_layers, rhighest_order, rand_seed, arguments));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -114,7 +120,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_mlyrnetwork_rcpp_compute_dyad_suffstats", (DL_FUNC) &_mlyrnetwork_rcpp_compute_dyad_suffstats, 5},
+    {"_mlyrnetwork_rcpp_compute_dyad_suffstats", (DL_FUNC) &_mlyrnetwork_rcpp_compute_dyad_suffstats, 11},
     {"_mlyrnetwork_rcpp_estimate_model_ml_Hway", (DL_FUNC) &_mlyrnetwork_rcpp_estimate_model_ml_Hway, 12},
     {"_mlyrnetwork_rcpp_simulate_ml_Hway", (DL_FUNC) &_mlyrnetwork_rcpp_simulate_ml_Hway, 11},
     {"_mlyrnetwork_rcpparma_hello_world", (DL_FUNC) &_mlyrnetwork_rcpparma_hello_world, 0},
