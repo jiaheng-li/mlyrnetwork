@@ -26,57 +26,6 @@
 using namespace std;
 using namespace Rcpp;
 
-/*
-vector<int> all_interaction_layer;
-vector<int> combination;
-vector<vector <int> > selected_layer;
-// Select all combinations of k layers, where k is the order of interaction
-void select_layer(int offset, int k) {
-    if (k == 0) {
-        selected_layer.push_back(combination);
-        return;
-    }
-    for (int i = offset; i <= all_interaction_layer.size() - k; ++i) {
-        combination.push_back(all_interaction_layer[i]);
-        select_layer(i + 1, k - 1);
-        combination.pop_back();
-    }
-}
-
-
-// Compute the parameter index from lexicographical orders
-void compute_param_index(int K, int H, unordered_map<string, int>& indexmap) {
-    int param_ind = 0;
-    for (int h = 0; h < K; ++h) {
-        indexmap.insert(make_pair(to_string(h), param_ind++));
-    }
-    for (int h = 2; h <= H; ++h) {
-        select_layer(0, h);
-        for (auto ele : selected_layer)
-        {
-            string lexi_ind = "";
-            for (auto ele2 : ele) {
-                lexi_ind += to_string(ele2) + "+";
-            }
-            indexmap.insert(make_pair(lexi_ind, param_ind++));
-        }
-
-
-        // Re-initialize for next use
-        int s = selected_layer.size();
-        for (int num = 0; num < s; ++num) {
-            selected_layer.pop_back();
-        }
-
-
-        s = combination.size();
-        for (int num = 0; num < s; ++num) {
-            combination.pop_back();
-        }
-    }
-}
-*/
-
 
 //' @title rcpp_compute_dyad_suffstats
 //' @description
@@ -244,68 +193,6 @@ List rcpp_estimate_model_ml_Hway(IntegerMatrix RNETWORK,
 }
 
 
-/*
-//' @title rcpp_estimate_model_ml_3way
-//' @description
-//' Estimate (MPLE) parameters for network-separable multilayer network models with 3-way interactions
-//' @name rcpp_estimate_model_ml_3way
-//' @param
-//' @examples
-//' 
-//'
-//' @export
-// [[Rcpp::export]]
-List rcpp_estimate_model_ml_3way(IntegerMatrix RNETWORK, NumericVector rNR_tol, IntegerVector rNR_max, IntegerVector rMCMLE_max,
-    IntegerVector rsamp_num, IntegerVector rburnin, IntegerVector rinterval,
-    IntegerVector rmodel_dim, StringVector model_terms,
-    IntegerVector rnum_nodes, IntegerVector rnum_layers, LogicalVector rcheck_chull, IntegerVector random_seeds, NumericVector g) {
-
-    int NR_max = rNR_max[0];
-    int MCMLE_max = rMCMLE_max[0];
-    double NR_tol = rNR_tol[0];
-    int samp_num = rsamp_num[0];
-    int burnin = rburnin[0];
-    int interval = rinterval[0];
-    int model_dim = rmodel_dim[0];
-    int num_nodes = rnum_nodes[0];
-    int num_layers = rnum_layers[0];
-    bool check_chull = rcheck_chull[0];
-    int random_seed = random_seeds[0];
-    double gy = g[0];
-    
-    vector<vector<int> > MEMB;
-    MEMB.resize(num_nodes);
-    
-    vector<string> mterms;
-    mterms.resize(model_dim);
-    for (int p = 0; p < model_dim; ++p) {
-        mterms.at(p) = model_terms[p];
-    }
-
-    est_ml_3way est_obj(samp_num, burnin, interval, model_dim, mterms, num_nodes, num_layers, random_seed, NR_max, NR_tol, MCMLE_max, check_chull, gy);
-    int node_i, node_j, layer_k;
-    for (int i = 0; i < RNETWORK.nrow(); ++i) {
-        node_i = RNETWORK(i, 0) - 1;
-        node_j = RNETWORK(i, 1) - 1;
-        layer_k = RNETWORK(i, 2) - 1;
-        est_obj.obs_net_ml.add_edge(node_i, node_j, layer_k);
-    }
-
-   
-    est_obj.compute_initial_estimate();
-    // Create return list
-    NumericVector Rtheta_est(est_obj.theta_est.size());
-    for (int p = 0; p < Rtheta_est.length(); ++p) {
-        Rtheta_est(p) = est_obj.theta_est.at(p);
-    }
-    List return_list = List::create(Named("theta_est") = Rtheta_est,
-        Named("model_terms") = model_terms);
-
-    Rcpp::Rcout << "\n" << flush;
-    return return_list;
-}
-
-*/
 
 /*
 //' @title rcpp_estimate_model_ml
@@ -413,7 +300,7 @@ List rcpp_simulate_ml_Hway(IntegerVector rsamp_num, IntegerVector rburnin, Integ
     sim_ml_Hway sim_obj(samp_num, burnin, interval, model_dim, mterms, num_nodes, num_layers, highest_order ,random_seed, basis_arguments);
     sim_obj.set_theta(theta);
     sim_obj.simulate_ml();
-    sim_obj.compute_sample_mean();
+    //sim_obj.compute_sample_mean();
 
 
 
@@ -455,15 +342,16 @@ List rcpp_simulate_ml_Hway(IntegerVector rsamp_num, IntegerVector rburnin, Integ
         suff_list(i, 0) = iter;
         suff_list(i, 1) = iter;
         count_avg = (double)accumulate(sim_obj.netCount_samp[iter].begin(), sim_obj.netCount_samp[iter].end(), 0) / (double)sim_obj.num_samples;
-        suff_list(i++, 2) = count_avg;
+        suff_list(i, 2) = count_avg;
+        i += 1;
     }
     for (int iter = 0; iter < sim_obj.mlnetwork.layer_count(); ++iter) {
         for (int iter2 = iter+1; iter2 < sim_obj.mlnetwork.layer_count(); ++iter2) {
             count_avg = (double)accumulate(sim_obj.crossLayerCount_samp[iter][iter2].begin(), sim_obj.crossLayerCount_samp[iter][iter2].end(), 0) / (double)sim_obj.num_samples;
             suff_list(i, 0) = iter;
             suff_list(i, 1) = iter2;
-            suff_list(i++, 2) = count_avg;
-
+            suff_list(i, 2) = count_avg;
+            i += 1;
         }
 
     }
@@ -482,7 +370,7 @@ List rcpp_simulate_ml_Hway(IntegerVector rsamp_num, IntegerVector rburnin, Integ
     }
     NumericMatrix basis_list(edge_count, 3);
     iter = 0;
-    for (int node_i = 0; node_i < sim_obj.basis_net.node_count(); ++node_i) {
+    for (int node_i = 0; node_i < sim_obj.basis_net.node_count(); ++node_i) { 
         for (int node_j = node_i + 1; node_j < sim_obj.basis_net.node_count(); ++node_j) {
             for (int loc = 0; loc < sim_obj.basis_net.adj[node_i][node_j].size(); ++loc) {
 

@@ -16,7 +16,7 @@ summary_est <- function(res_list){
   names <- rep('na',dim)
   iter <- 0 
   for(i in 1:H){
-    index_mat = utils::combn(1:k,i)
+    index_mat = utils::combn(1:K,i)
     for(j in 1:length(index_mat[1,])){
       iter <- iter + 1
       names[iter] <- paste('theta', paste0(index_mat[,j],collapse = ''))
