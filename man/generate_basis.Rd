@@ -4,7 +4,7 @@
 \alias{generate_basis}
 \title{Title}
 \usage{
-generate_basis(pool, num_pairs)
+generate_basis(n, pool_size = 100)
 }
 \arguments{
 \item{pool}{}
