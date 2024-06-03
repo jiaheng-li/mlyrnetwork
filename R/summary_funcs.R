@@ -52,3 +52,27 @@ summary_sim <- function(res_list){
   
   
 }
+
+
+
+# Function to generate unique pairs
+#' Title
+#'
+#' @param pool 
+#' @param num_pairs 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+generate_basis <- function(pool, num_pairs) {
+  pairs <- list()
+  while (length(pairs) < num_pairs) {
+    pair <- sort(sample(pool, 2))
+    pair_str <- paste(pair, collapse = ",")
+    if (!pair_str %in% sapply(pairs, paste, collapse = ",")) {
+      pairs[[length(pairs) + 1]] <- pair
+    }
+  }
+  return(unlist(pairs))
+}

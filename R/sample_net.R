@@ -76,18 +76,31 @@ sim_est <- function(theta,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm 
   RNETWORK <- rcpp_simulate_ml_Hway(samp_num, burnin, intv, mdim, mterm, N, k, theta, H, seed, basis_arguments)
   NetMat <- RNETWORK$elist
   result <- rcpp_estimate_model_ml_Hway(NetMat, samp_num,  burnin, intv, mdim, mterm, N, k,H, seed,basis_arguments, iter_max) 
+  
+  
+  # calculate covariance matrix of mple by sufficient statistics
+  a <- rcpp_compute_dyad_suffstats(NetMat, samp_num, burnin, intv, mdim, mterm, N, k, H, seed,basis_arguments)
+  suff_matrix <- a$dyad_suffstats
+  df <- data.frame(suff_matrix)
+  cond_suff_mat <- df[rowSums(df[,3:mdim]) > 0,]
+  mple_cov <- cov(cond_suff_mat[,3:(mdim+2)])
+  num_of_dyad <- length(cond_suff_mat[,1])
+  
   dist_mat <- data.frame(result)
   values <- rep(0,mdim)
   for (i in c(1:mdim)){
     values[i] <- dist_mat[i,1]
   }
   
-  
+  RL2err <- norm(values - theta, "2")/norm(theta,"2")
   toc <- Sys.time()
   
+  
+  
   # Prepare result list 
-  res <- list(theta = theta,theta_est = values, 
-              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N)
+  res <- list(theta = theta,theta_est = values, RL2err = RL2err, suff_matrix = suff_matrix,
+              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N, num_of_layers = k, highest_order = H,
+              num_of_dyad = num_of_dyad, mple_cov = mple_cov, basis_net = basis_arguments)
   
   
   
@@ -99,34 +112,67 @@ sim_est <- function(theta,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm 
 
 
 
-sim_est_save <- function(res_list){
-  N <- res_list$net_size
-  theta <- res_list$theta
-  theta_est <- res_list$theta_est
-  time <- res_list$time 
-  seed <- res_list$seed
-  gy <- res_list$gy
-  theta_est <- res_list$theta_est
+#' Title
+#'
+#' @param res_list 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+sim_est_save <- function(res_list, sim_id){
   
-  file_ <- paste0("out/out_", ".out")
-  sink(file_)
-  
-  cat(paste0("\nNetwork size: ", N, "\n"))
-  cat(paste0("theta: ", theta, ","))
-  cat("\n\n")
-  cat(paste0("theta_est: ", theta_est, ","))
-  cat("\n\n")
-  cat(paste0("\n\nTime elapsed: ", round(time/60), " minutes. Seed: ", seed, " \nP(Y_ij = 1) = ",gy ))
-  cat("\n\n")
-  
-  file_ <- paste0("results/res_", ".rda")
+  file_ <- paste0("results/res_", sim_id, ".rda")
   save(res_list, file = file_)
   sink()
-  closeAllConnections()
+  
   
 }
 
-sim_est_wrapper <- function(){
+
+#' Title
+#'
+#' @param theta 
+#' @param N 
+#' @param samp_num 
+#' @param burnin 
+#' @param k 
+#' @param H 
+#' @param mdim 
+#' @param mterm 
+#' @param intv 
+#' @param seed 
+#' @param iter_max 
+#' @param basis_arguments 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+sim_est_wrapper <- function(sim_id, thetas, N, samp_num = 1, burnin = 100, k, H, mdim, mterm, intv = 3,
+                            seeds, iter_max = 30000, basis_arguments){
+  
+  file_ <- paste0("out/out_", sim_id, ".out")
+  sink(file_)
+  theta <- thetas[sim_id,]
+  cat(paste0("\nNetwork size: ", N, "\n"))
+  #cat(paste0("\ntheta: ", theta, "\n"))
+  cat(paste0("\nStarting replication: ", sim_id, "\n"))
+  cat(paste0("\nModel term is ", mterm, "\n"))
+  cat(paste0("\nThe number of layers is k = ", k, "\n"))
+  cat(paste0("\nThe highest order of interaction is H = ",  H, "\n"))
+  cat(paste0("\nThe number of activated dyads is: ", length(basis_arguments)/2, "\n"))
+  seed <- seeds[sim_id]
+  
+  res_list <- sim_est(theta, N, samp_num, burnin, k, H, mdim, mterm, intv = 3,
+                      seed, iter_max = 30000, basis_arguments)
+  
+  cat(paste0("\nTime elapsed: ", round(res_list$time/60), " minutes. Seed: ", seed))
+  cat(paste0("\nThe relative L2 error is : ", res_list$RL2err))
+
+  sim_est_save(res_list, sim_id)
+  return(res_list)
+  
   
 }
 
