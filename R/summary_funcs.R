@@ -65,14 +65,13 @@ summary_sim <- function(res_list){
 #' @export
 #'
 #' @examples
-generate_basis <- function(pool, num_pairs) {
+generate_basis <- function(n, pool_size = 100) {
   pairs <- list()
-  while (length(pairs) < num_pairs) {
-    pair <- sort(sample(pool, 2))
-    pair_str <- paste(pair, collapse = ",")
-    if (!pair_str %in% sapply(pairs, paste, collapse = ",")) {
-      pairs[[length(pairs) + 1]] <- pair
+  while (length(pairs) < n) {
+    pair <- sort(sample(1:pool_size, 2))
+    if (!any(sapply(pairs, function(x) all(x == pair)))) {
+      pairs <- c(pairs, list(pair))
     }
   }
-  return(unlist(pairs))
+  return(as.vector(t(do.call(rbind, pairs))))
 }
