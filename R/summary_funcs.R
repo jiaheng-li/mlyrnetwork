@@ -53,25 +53,3 @@ summary_sim <- function(res_list){
   
 }
 
-
-
-# Function to generate unique pairs
-#' Title
-#'
-#' @param pool 
-#' @param num_pairs 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-generate_basis <- function(n, pool_size = 100) {
-  pairs <- list()
-  while (length(pairs) < n) {
-    pair <- sort(sample(1:pool_size, 2))
-    if (!any(sapply(pairs, function(x) all(x == pair)))) {
-      pairs <- c(pairs, list(pair))
-    }
-  }
-  return(as.vector(t(do.call(rbind, pairs))))
-}
