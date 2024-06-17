@@ -21,6 +21,18 @@ gen_sbm <- function(N, node_membs, p_within, p_between) {
   return(net)
 }
 
+#' Title
+#'
+#' @param N 
+#' @param num_of_block 
+#' @param p_within 
+#' @param p_between 
+#' @param M 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 generate_SBM_basis <- function(N=3*10, num_of_block = 3, p_within=0.5, p_between=0.1,M=0){
   node_membs <- rep(c(1:num_of_block),each = N/num_of_block)
   net <- gen_sbm(N, node_membs, p_within, p_between)
