@@ -51,7 +51,7 @@ generate_SBM_basis <- function(N=3*10, num_of_block = 3, p_within=0.5, p_between
     num_of_dyad <- length(dyads[,1])
     if(num_of_dyad < M){
       stop("The number of activated dyads required is more than the number of dyads in the network.\n
-         Try reducing the parameter M")
+         Try reducing the number of activated dyads")
     }
     dyads <- dyads[sample(1:num_of_dyad,M,replace = FALSE),]
   }
