@@ -1,5 +1,5 @@
 rm(list = ls())
-
+setwd("C:/Users/ljhhe/OneDrive - Florida State University/GitHub/mlyrnetwork")
 library("devtools")
 devtools::document()
 
@@ -9,7 +9,7 @@ seed <- sample(1:9999999,1,replace = FALSE)
 
 ## Parameter settings
 burnin <- 100
-k <- 3  # number of layers, okay to change
+k <- 4  # number of layers, okay to change
 H <- 2  # highest order of interactions, okay to change (<= k)
 mdim <- 0
 for(i in 1:H){
@@ -20,7 +20,7 @@ intv <- 3 # sampling iterval
 iter_max <- 30000 # maximum iterations for estimation
 
 
-# generate stochastic block model basis as an eample
+# generate stochastic block model basis as an example
 # can be set to 'Ber', 'LSM' and 'other'
 mterm <- 'SBM'  
 # set SBM parameters
@@ -73,8 +73,8 @@ data_theta <- data_res$theta_est
 summary_est(data_res)
 
 # m indicates the number of repetitions
-simulated_suff <- simulate_suffstats(data = Lazega_lawyer_network, m = 20 , theta = data_theta) # reproduce the Lazega network using the estimated parameters and the basis network induced from the observed network.
-draw_box_plot(simulated_suff, obs)
+simulated_suff <- simulate_suffstats_Lazega(data = Lazega_lawyer_network, m = 20 , theta = data_theta) # reproduce the Lazega network using the estimated parameters and the basis network induced from the observed network.
+draw_box_plot_Lazega(simulated_suff, obs)
 
 ############################################################
 ### test of sufficient statistic functions for each dyad ###

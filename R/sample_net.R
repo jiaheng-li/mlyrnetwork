@@ -1,3 +1,9 @@
+#=================================================================
+# This file contains functions for sampling and estimating
+# separable multilayer networks.
+#            
+#=================================================================
+
 
 #' Title
 #'

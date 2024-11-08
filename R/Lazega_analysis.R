@@ -81,11 +81,12 @@ compute_suffstats_Lazega <- function(net_data = Lazega_lawyer_network, N = 71){
 #' @export
 #'
 #' @examples
-simulate_suffstats <- function(data = Lazega_lawyer_network, m = 10, theta = c(-1.4497737, -3.3336582, -2.6945731,  1.8011888,  0.2176545,  2.4582079)){
+simulate_suffstats_Lazega <- function(data = Lazega_lawyer_network, m = 10, theta = c(-1.4497737, -3.3336582, -2.6945731,  1.8011888,  0.2176545,  2.4582079)){
+  # the default theta is the MPLE of the Lazega network data
   reproduced_suff <- matrix(0,m,7)
   seeds <- sample(1:9999999,m,replace = FALSE)
   sim_suff <- matrix(0,m, 7)
-  unique_dyads <- unique(Lazega_lawyer_network[,1:2])
+  unique_dyads <- unique(data[,1:2])
   unique_dyads_vec <- as.vector(t(unique_dyads))
 
   for(iter in c(1:m)){
@@ -104,7 +105,7 @@ simulate_suffstats <- function(data = Lazega_lawyer_network, m = 10, theta = c(-
 }
 
 
-draw_box_plot <- function(reproduced_suff, obs){
+draw_box_plot_Lazega <- function(reproduced_suff, obs){
   suff_y <- c(reproduced_suff)
   suff_mean <- colMeans(reproduced_suff)
   m = length(reproduced_suff[,1])
