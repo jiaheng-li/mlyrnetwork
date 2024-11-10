@@ -7,6 +7,58 @@
 
 #' Title
 #'
+#' @param theta model-generating parameter vector by lexicographic order
+#' @param N number of nodes
+#' @param samp_num number of simulated samples
+#' @param burnin number of burn-ins for the MCMC algorithm
+#' @param k number of layers
+#' @param mdim number of parameter dimensions
+#' @param mterm model terms
+#' @param intv length of the update interval for the MCMC algorithm
+#' @param seed random seed
+#' @param gy edge probability for the Bernoulli basis network
+#'
+#' @return return a list of k-layer network with a Bernoulli basis network and ...
+#' @export
+#'
+#' @examples 
+samp_ml <- function(theta,N = 10,samp_num = 1,burnin = 100,k = 3,mdim,
+                    mterm = 'BER',intv = 3, H = 2,
+                    seed = 0, basis_arguments = c(0.5,0)){
+  
+  
+  tic <- Sys.time()
+  RNETWORK <- rcpp_simulate_ml_Hway(samp_num, burnin, intv, mdim, mterm, N, k, theta, H, seed,basis_arguments)
+  NetMat <- RNETWORK$elist
+  basis <- RNETWORK$basis_list
+  
+  # calculate covariance matrix of mple by sufficient statistics
+  a <- rcpp_compute_dyad_suffstats(NetMat, samp_num, burnin, intv, mdim, mterm, N, k, H, seed,basis_arguments)
+  suff_matrix <- a$dyad_suffstats
+  df <- data.frame(suff_matrix)
+  # only count sufficient statistics of the individual activated dyad
+  cond_suff_mat <- df[rowSums(df[,3:(mdim+2)]) > 0,] 
+  dyad_suff_cov <- cov(cond_suff_mat[,3:(mdim+2)])
+  num_of_dyad <- length(cond_suff_mat[,1])
+  FI <- num_of_dyad * dyad_suff_cov # Fisher information matrix for the mlnet given Y at theta = \mple
+  suff_stats_sd <- diag(sqrtm(FI)) # take matrix square root of FI
+  suff_stats <- colSums(cond_suff_mat[,3:(mdim+2)])
+  names(suff_stats) <- NULL
+  toc <- Sys.time()
+  
+  # Prepare result list 
+  res <- list(theta = theta, net = NetMat, suff_stats = suff_stats, basis = basis, mod_dim = mdim, highest_order = H, num_layers = k,
+              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N, suff_stats_sd = suff_stats_sd)
+  
+  
+  class(res) <- 'simulate_class'
+  return(res)
+  
+}
+
+
+#' Title
+#'
 #' @param theta 
 #' @param N 
 #' @param samp_num 
@@ -41,12 +93,22 @@ est_ml <- function(NetMat,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm 
     values[i] <- dist_mat[i,1]
   }
   
+  # calculate covariance matrix of mple by sufficient statistics
+  a <- rcpp_compute_dyad_suffstats(NetMat, samp_num, burnin, intv, mdim, mterm, N, k, H, seed,basis_arguments)
+  suff_matrix <- a$dyad_suffstats
+  df <- data.frame(suff_matrix)
+  # only count sufficient statistics of the individual activated dyad
+  cond_suff_mat <- df[rowSums(df[,3:(mdim+2)]) > 0,] 
+  dyad_suff_cov <- cov(cond_suff_mat[,3:(mdim+2)])
+  num_of_dyad <- length(cond_suff_mat[,1])
+  FI <- num_of_dyad * dyad_suff_cov # Fisher information matrix for the mlnet given Y at theta = \mple
+  mple_sd <- diag(fnMatSqrtInverse(FI))
   
   toc <- Sys.time()
   
   # Prepare result list 
   res <- list(theta_est = values, 
-              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N, num_layers = k, mod_dim = mdim, interaction_order = H)
+              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N, num_layers = k, mod_dim = mdim, highest_order = H, mple_sd = mple_sd)
   
   
   class(res) <- 'estimate_class'
@@ -88,9 +150,15 @@ sim_est <- function(theta,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm 
   a <- rcpp_compute_dyad_suffstats(NetMat, samp_num, burnin, intv, mdim, mterm, N, k, H, seed,basis_arguments)
   suff_matrix <- a$dyad_suffstats
   df <- data.frame(suff_matrix)
-  cond_suff_mat <- df[rowSums(df[,3:mdim]) > 0,]
-  mple_cov <- cov(cond_suff_mat[,3:(mdim+2)])
+  # only count sufficient statistics of the individual activated dyad
+  cond_suff_mat <- df[rowSums(df[,3:(mdim+2)]) > 0,] 
+  dyad_suff_cov <- cov(cond_suff_mat[,3:(mdim+2)])
   num_of_dyad <- length(cond_suff_mat[,1])
+  FI <- num_of_dyad * dyad_suff_cov # Fisher information matrix for the mlnet given Y at theta = \mple
+  mple_sd <- diag(fnMatSqrtInverse(FI))
+  suff_stats_sd <- diag(sqrtm(FI)) # take matrix square root of FI
+  suff_stats <- colSums(cond_suff_mat[,3:(mdim+2)])
+  names(suff_stats) <- NULL
   
   dist_mat <- data.frame(result)
   values <- rep(0,mdim)
@@ -104,9 +172,9 @@ sim_est <- function(theta,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm 
   
   
   # Prepare result list 
-  res <- list(theta = theta,theta_est = values, RL2err = RL2err, suff_matrix = suff_matrix,
-              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N, num_of_layers = k, highest_order = H,
-              num_of_dyad = num_of_dyad, mple_cov = mple_cov, basis_net = basis_arguments)
+  res <- list(theta = theta,theta_est = values, RL2err = RL2err, suff_matrix = suff_matrix, mod_dim = mdim, suff_stats = suff_stats, suff_stats_sd = suff_stats_sd,
+              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N, num_layers = k, highest_order = H,
+              num_of_dyad = num_of_dyad, dyad_suff_cov = dyad_suff_cov, mple_sd = mple_sd, basis_net = basis_arguments)
   
   
   
@@ -182,48 +250,6 @@ sim_est_wrapper <- function(sim_id, thetas, N, samp_num = 1, burnin = 100, k, H,
   
 }
 
-
-#' Title
-#'
-#' @param theta model-generating parameter vector by lexicographic order
-#' @param N number of nodes
-#' @param samp_num number of simulated samples
-#' @param burnin number of burn-ins for the MCMC algorithm
-#' @param k number of layers
-#' @param mdim number of parameter dimensions
-#' @param mterm model terms
-#' @param intv length of the update interval for the MCMC algorithm
-#' @param seed random seed
-#' @param gy edge probability for the Bernoulli basis network
-#'
-#' @return return a list of k-layer network with a Bernoulli basis network and ...
-#' @export
-#'
-#' @examples 
-samp_ml <- function(theta,N = 10,samp_num = 1,burnin = 100,k = 3,mdim,
-                       mterm = 'BER',intv = 3, H = 2,
-                       seed = 0, basis_arguments = c(0.5,0)){
-  
-  
-  tic <- Sys.time()
-  RNETWORK <- rcpp_simulate_ml_Hway(samp_num, burnin, intv, mdim, mterm, N, k, theta, H, seed,basis_arguments)
-  NetMat <- RNETWORK$elist
-  suff_stats <-RNETWORK$suff_list
-  basis <- RNETWORK$basis_list
-  
-  
-  
-  toc <- Sys.time()
-  
-  # Prepare result list 
-  res <- list(theta = theta, net = NetMat, suff_stats = suff_stats, basis = basis,
-              time = as.numeric(difftime(toc, tic, units = "secs")), seed = seed, net_size = N)
-  
-  
-  class(res) <- 'simulate_class'
-  return(res)
-  
-}
 
 
 

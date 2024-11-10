@@ -295,8 +295,9 @@ List rcpp_simulate_ml_Hway(IntegerVector rsamp_num, IntegerVector rburnin, Integ
             suff_list(i, 2) = count_avg;
             i += 1;
         }
-
     }
+
+    // when K > 3, the threewayCount is counting for the number of all dyads that have 3 or more edges, ignoring the specific dimension.
     count_avg = (double)accumulate(sim_obj.threewayCount_samp.begin(), sim_obj.threewayCount_samp.end(), 0) / (double)sim_obj.num_samples;
     suff_list(i, 0) = 3;
     suff_list(i, 1) = 3;

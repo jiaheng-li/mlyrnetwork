@@ -13,6 +13,7 @@ Depends:
     ergm,
     R (>= 2.10)
 Imports: 
+    expm,
     GGally,
     ggplot2,
     ggpubr,

@@ -1,5 +1,6 @@
 rm(list = ls())
 setwd("C:/Users/ljhhe/OneDrive - Florida State University/GitHub/mlyrnetwork")
+#usethis::use_package("expm")
 library("devtools")
 devtools::document()
 
@@ -49,7 +50,7 @@ draw_mlnet(mlnet$net,N)
 estimates <- est_ml(NetMat = mlnet$net, N = N, k = k, H = H, mdim = mdim, mterm = mterm,
                      seed = seed, basis_arguments = basis_arguments) 
 
-### Add standard errors ###
+## Add standard errors ##
 summary_est(estimates) 
 
 ## Examples of invalid input
@@ -87,7 +88,7 @@ devtools::document()
 
 set.seed(123456)
 seed <- sample(1:9999999,1,replace = FALSE)
-N <- 1000 # number of nodes
+N <- 50 # number of nodes
 ## Parameter settings
 burnin <- 100
 k <- 4  # number of layers, okay to change
@@ -120,3 +121,57 @@ a = rcpp_compute_dyad_suffstats(mlnet$net, 1, 100, intv, mdim, mterm, N, k, H, s
 colSums(a$dyad_suffstats)
 apply(a$dyad_suffstats,2,sd)
 mlnet$suff_stats
+
+
+
+############################################################
+### test of standard error  ################################
+############################################################
+rm(list = ls())
+setwd("C:/Users/ljhhe/OneDrive - Florida State University/GitHub/mlyrnetwork")
+
+library("devtools")
+devtools::document()
+
+set.seed(123456)
+seed <- sample(1:9999999,1,replace = FALSE)
+N <- 50 # number of nodes
+## Parameter settings
+burnin <- 100
+k <- 3  # number of layers, okay to change
+H <- 2  # highest order of interactions, okay to change (<= k)
+mdim <- 0
+for(i in 1:H){
+  mdim <- mdim + choose(k,i)
+}
+
+intv <- 3 # sampling iterval
+iter_max <- 30000 # maximum iterations for estimation
+dyads <- 1000
+
+# generate stochastic block model basis as an example
+# can be set to 'Ber', 'LSM' and 'other'
+mterm <- 'BER'  
+gy <- dyads / choose(N,2) 
+# set basis network arguments for SBM basis
+basis_arguments <- c(gy, seed)
+
+# generate theta for layers
+params <- matrix(runif(mdim,-1,1),1,mdim)
+params[,c(3,6)] = 0
+theta <- params[1,]
+
+
+mlnet <- samp_ml(theta,N = N, k = k, H = H ,mdim = mdim, seed = seed, mterm = mterm, basis_arguments = basis_arguments)
+summary_sim(mlnet)
+## Sample and estimate the multilayer network sampled above
+estimates <- est_ml(NetMat = mlnet$net, N = N, k = k, H = H, mdim = mdim, mterm = mterm,
+                    seed = seed, basis_arguments = basis_arguments) 
+summary_est(estimates) 
+
+sim_est_res <- sim_est(theta,N = N, k = k, H = H, mdim = mdim, mterm = mterm,
+                    seed = seed,basis_arguments =basis_arguments)
+
+summary_sim(sim_est_res)
+summary_est(sim_est_res)
+
