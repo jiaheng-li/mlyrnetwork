@@ -41,7 +41,7 @@ samp_ml <- function(theta,N = 10,samp_num = 1,burnin = 100,k = 3,mdim,
   dyad_suff_cov <- cov(cond_suff_mat[,3:(mdim+2)])
   num_of_dyad <- length(cond_suff_mat[,1])
   FI <- num_of_dyad * dyad_suff_cov # Fisher information matrix for the mlnet given Y at theta = \mple
-  suff_stats_sd <- diag(sqrtm(FI)) # take matrix square root of FI
+  suff_stats_sd <- diag(expm::sqrtm(FI)) # take matrix square root of FI
   suff_stats <- colSums(cond_suff_mat[,3:(mdim+2)])
   names(suff_stats) <- NULL
   toc <- Sys.time()
@@ -156,7 +156,7 @@ sim_est <- function(theta,N,samp_num = 1,burnin = 100,k = 3, H = 2, mdim, mterm 
   num_of_dyad <- length(cond_suff_mat[,1])
   FI <- num_of_dyad * dyad_suff_cov # Fisher information matrix for the mlnet given Y at theta = \mple
   mple_sd <- diag(fnMatSqrtInverse(FI))
-  suff_stats_sd <- diag(sqrtm(FI)) # take matrix square root of FI
+  suff_stats_sd <- diag(expm::sqrtm(FI)) # take matrix square root of FI
   suff_stats <- colSums(cond_suff_mat[,3:(mdim+2)])
   names(suff_stats) <- NULL
   

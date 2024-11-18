@@ -176,7 +176,10 @@ summary_sim(sim_est_res)
 summary_est(sim_est_res)
 
 
+########################
 ### Sample iid dyads ###
+########################
+
 rm(list = ls())
 N <- 71
 iid_dyad <- matrix(sample(N, 2*0.2*choose(N,2), replace = TRUE),ncol = 2)
@@ -218,3 +221,16 @@ plot(ecdf(x2),
      add = TRUE, 
      lty = "dashed",
      col = "red")
+
+lazega_ip <- comp_inner_prod()
+y1 <- lazega_ip$neighboring_inner_prod
+y2 <- lazega_ip$non_neighboring_inner_prod
+ks.test(x2,y2)
+plot(ecdf(x2), 
+     xlim = range(c(x2, y2)), 
+     col = "blue")
+plot(ecdf(y2), 
+     add = TRUE, 
+     lty = "dashed",
+     col = "red")
+
