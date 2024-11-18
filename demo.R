@@ -175,3 +175,46 @@ sim_est_res <- sim_est(theta,N = N, k = k, H = H, mdim = mdim, mterm = mterm,
 summary_sim(sim_est_res)
 summary_est(sim_est_res)
 
+
+### Sample iid dyads ###
+rm(list = ls())
+N <- 71
+iid_dyad <- matrix(sample(N, 2*0.2*choose(N,2), replace = TRUE),ncol = 2)
+for(i in 1:length(iid_dyad[,1])){
+  if(iid_dyad[i,1] > iid_dyad[i,2]){
+    t = iid_dyad[i,1]
+    iid_dyad[i,1] = iid_dyad[i,2]
+    iid_dyad[i,2] <- t
+  }
+
+}
+iid_dyad <- iid_dyad[-which(iid_dyad[,1] == iid_dyad[,2]),]
+iid_dyad <- unique(iid_dyad[,1:2])
+iid_dyad <- cbind(iid_dyad,sample(3,length(iid_dyad[,1]),replace = TRUE))
+for(i in 1:length(iid_dyad[,1])){
+  if(runif(1) < 0.3){
+    e <- sample(2,1)
+    a <- c(1,2,3)
+    a <- a[-which(a == iid_dyad[i,3])]
+    iter<-0
+    e2 <- sample(a,e)
+    for(j in e2){
+      iter <- iter + 1
+      if(iter > 2){print(iter)}
+      iid_dyad <- rbind(iid_dyad,c(iid_dyad[i,1],iid_dyad[i,2],j))
+    }
+    
+  }
+}
+iid_dyad <- iid_dyad[order(iid_dyad[,1],iid_dyad[,2]),]
+dyad_ip <- comp_inner_prod(iid_dyad)
+x1 <- dyad_ip$neighboring_inner_prod
+x2 <- dyad_ip$non_neighboring_inner_prod
+ks.test(x1,x2)
+plot(ecdf(x1), 
+     xlim = range(c(x1, x2)), 
+     col = "blue")
+plot(ecdf(x2), 
+     add = TRUE, 
+     lty = "dashed",
+     col = "red")

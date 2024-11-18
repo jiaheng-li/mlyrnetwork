@@ -105,6 +105,15 @@ simulate_suffstats_Lazega <- function(data = Lazega_lawyer_network, m = 10, thet
 }
 
 
+#' Title
+#'
+#' @param reproduced_suff 
+#' @param obs 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 draw_box_plot_Lazega <- function(reproduced_suff, obs){
   suff_y <- c(reproduced_suff)
   suff_mean <- colMeans(reproduced_suff)
@@ -135,5 +144,71 @@ draw_box_plot_Lazega <- function(reproduced_suff, obs){
   
 }
 
+#' Title
+#'
+#' @param data 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+comp_inner_prod <- function(data = Lazega_lawyer_network){
+  k <- max(data[,3])
+  N <- max(data)
+  unique_dyads <- unique(data[,1:2])
+  n2 <- length(unique_dyads[,1])
+  dyad_vec <- matrix(0,n2,k+2)
+  n1 <- length(data[,1])
+  ind1 <- data[1,1]
+  ind2 <- data[1,2]
+  dyad_ind <- 1
+  for(i in 1:n1){
+    if(ind1 == data[i,1] & ind2 == data[i,2]){
+      dyad_vec[dyad_ind,1] <- ind1
+      dyad_vec[dyad_ind,2] <- ind2
+      dyad_vec[dyad_ind,data[i,3]+2] <- 1
+    }
+    else{
+      dyad_ind <- dyad_ind + 1
+      ind1 <- data[i,1]
+      ind2 <- data[i,2]
+      dyad_vec[dyad_ind,1] <- ind1
+      dyad_vec[dyad_ind,2] <- ind2
+      #dyad_ind <- data[i,2] - data[i,1] + (N-1 + (N-data[i,1]+1)* (data[i,1]!=2)) * (data[i,1]-1) / (2/((data[i,1]==2)+1))  * (data[i,1]!=1)
+      dyad_vec[dyad_ind,data[i,3]+2] <- 1
+    }
+    
+  }
+  neighboring_inner_prod <- rep(0,n2)
+  non_neighboring_inner_prod <- rep(0,n2)
+  for(i in 1:n2){
+    node1 <- dyad_vec[i,1]
+    node2 <- dyad_vec[i,2]
+    iter1 <- 0
+    iter2 <- 0
+    for(j in 1:n2){
+      if(j==i){next}
+      else if(dyad_vec[j,1] == node1 | dyad_vec[j,1] == node2 | dyad_vec[j,2] == node1 | dyad_vec[j,2] == node2){
+        neighboring_inner_prod[i] <- neighboring_inner_prod[i] + sum(dyad_vec[i,3:5] * dyad_vec[j,3:5])
+        iter1 <- iter1 + 1
+      }
+      else{
+        non_neighboring_inner_prod[i] <- non_neighboring_inner_prod[i] + sum(dyad_vec[i,3:5] * dyad_vec[j,3:5])
+        iter2 <- iter2 + 1
+      }
+      
+    }
+    neighboring_inner_prod[i] <- neighboring_inner_prod[i] / iter1
+    non_neighboring_inner_prod[i] <- non_neighboring_inner_prod[i] / iter2
+  }
+  
+  
+  res <- list(neighboring_inner_prod = neighboring_inner_prod, non_neighboring_inner_prod = non_neighboring_inner_prod)
+  
+  
+  class(res) <- 'inner_prod_class'
+  return(res)
+  
+}
 
 
