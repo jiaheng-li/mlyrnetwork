@@ -144,7 +144,9 @@ draw_box_plot_Lazega <- function(reproduced_suff, obs){
   
 }
 
-#' Title
+#' Compute the inner product of activated dyads.
+#' 
+#' This function computes inner product of activated dyads.
 #'
 #' @param data 
 #'
@@ -207,6 +209,76 @@ comp_inner_prod <- function(data = Lazega_lawyer_network){
   
   
   class(res) <- 'inner_prod_class'
+  return(res)
+  
+}
+
+
+#' Compute the independence test statistic
+#' 
+#' Construct the test statistic by computing each dyad's inner product of its neighboring dyads
+#' 
+#'
+#' @param data 
+#'
+#' @return a list of inner products
+#' @export
+#'
+#' @examples
+comp_indep_test <- function(data = Lazega_lawyer_network){
+  k <- max(data[,3])
+  N <- max(data)
+  unique_dyads <- unique(data[,1:2])
+  n2 <- length(unique_dyads[,1])
+  dyad_vec <- matrix(0,n2,k+2)
+  n1 <- length(data[,1])
+  ind1 <- data[1,1]
+  ind2 <- data[1,2]
+  dyad_ind <- 1
+  for(i in 1:n1){
+    if(ind1 == data[i,1] & ind2 == data[i,2]){
+      dyad_vec[dyad_ind,1] <- ind1
+      dyad_vec[dyad_ind,2] <- ind2
+      dyad_vec[dyad_ind,data[i,3]+2] <- 1
+    }
+    else{
+      dyad_ind <- dyad_ind + 1
+      ind1 <- data[i,1]
+      ind2 <- data[i,2]
+      dyad_vec[dyad_ind,1] <- ind1
+      dyad_vec[dyad_ind,2] <- ind2
+      #dyad_ind <- data[i,2] - data[i,1] + (N-1 + (N-data[i,1]+1)* (data[i,1]!=2)) * (data[i,1]-1) / (2/((data[i,1]==2)+1))  * (data[i,1]!=1)
+      dyad_vec[dyad_ind,data[i,3]+2] <- 1
+    }
+    
+  }
+  
+  nip_list <- list()
+  non_nip_list <- list()
+  for(i in 1:n2){
+    node1 <- dyad_vec[i,1]
+    node2 <- dyad_vec[i,2]
+    neighboring_inner_prod <- c()
+    non_neighboring_inner_prod <- c()
+    for(j in 1:n2){
+      if(j==i){next}
+      else if(dyad_vec[j,1] == node1 | dyad_vec[j,1] == node2 | dyad_vec[j,2] == node1 | dyad_vec[j,2] == node2){
+        neighboring_inner_prod <- append(neighboring_inner_prod, sum(dyad_vec[i,3:5] * dyad_vec[j,3:5]))
+      }
+      else{
+        non_neighboring_inner_prod <- append(non_neighboring_inner_prod, sum(dyad_vec[i,3:5] * dyad_vec[j,3:5]))
+      }
+      
+    }
+    nip_list[[i]] <- neighboring_inner_prod
+    non_nip_list[[i]] <- non_neighboring_inner_prod
+  }
+  
+  
+  res <- list(neighboring_inner_prod = nip_list, non_neighboring_inner_prod = non_nip_list)
+  
+  
+  class(res) <- 'inner_prod_list'
   return(res)
   
 }

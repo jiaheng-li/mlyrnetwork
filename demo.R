@@ -3,7 +3,8 @@ setwd("C:/Users/ljhhe/OneDrive - Florida State University/GitHub/mlyrnetwork")
 #usethis::use_package("expm")
 library("devtools")
 devtools::document()
-
+#devtools::load_all()
+#?mlyrnetwork::comp_inner_prod
 
 set.seed(123456)
 seed <- sample(1:9999999,1,replace = FALSE)
@@ -233,4 +234,24 @@ plot(ecdf(y2),
      add = TRUE, 
      lty = "dashed",
      col = "red")
+
+
+#######################################
+### Independence test for each dyad ###
+#######################################
+Lazega_ip <- comp_dyad_inner_prod()
+
+ind <- 2
+y1 <- Lazega_ip$neighboring_inner_prod[[ind]]
+y2 <- Lazega_ip$non_neighboring_inner_prod[[ind]]
+ks.test(y1,y2)
+plot(ecdf(y1), 
+     xlim = range(c(y1, y2)), 
+     col = "blue")
+plot(ecdf(y2), 
+     add = TRUE, 
+     lty = "dashed",
+     col = "red")
+
+range(c(y1, y2))
 

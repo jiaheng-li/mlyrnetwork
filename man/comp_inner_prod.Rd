@@ -2,7 +2,7 @@
 % Please edit documentation in R/Lazega_analysis.R
 \name{comp_inner_prod}
 \alias{comp_inner_prod}
-\title{Title}
+\title{Compute the inner product of activated dyads.}
 \usage{
 comp_inner_prod(data = Lazega_lawyer_network)
 }
@@ -10,5 +10,5 @@ comp_inner_prod(data = Lazega_lawyer_network)
 \item{data}{}
 }
 \description{
-Title
+This function computes inner product of activated dyads.
 }
