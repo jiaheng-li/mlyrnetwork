@@ -225,7 +225,7 @@ comp_inner_prod <- function(data = Lazega_lawyer_network){
 #' @export
 #'
 #' @examples
-comp_indep_test <- function(data = Lazega_lawyer_network){
+comp_indep_test <- function(data = Lazega_lawyer_network, B = 100){
   k <- max(data[,3])
   N <- max(data)
   unique_dyads <- unique(data[,1:2])
@@ -253,29 +253,34 @@ comp_indep_test <- function(data = Lazega_lawyer_network){
     
   }
   
-  nip_list <- list()
-  non_nip_list <- list()
+  ip_dist <- list()
   for(i in 1:n2){
     node1 <- dyad_vec[i,1]
     node2 <- dyad_vec[i,2]
-    neighboring_inner_prod <- c()
-    non_neighboring_inner_prod <- c()
-    for(j in 1:n2){
-      if(j==i){next}
-      else if(dyad_vec[j,1] == node1 | dyad_vec[j,1] == node2 | dyad_vec[j,2] == node1 | dyad_vec[j,2] == node2){
-        neighboring_inner_prod <- append(neighboring_inner_prod, sum(dyad_vec[i,3:5] * dyad_vec[j,3:5]))
-      }
-      else{
-        non_neighboring_inner_prod <- append(non_neighboring_inner_prod, sum(dyad_vec[i,3:5] * dyad_vec[j,3:5]))
-      }
-      
+    neighboring_inner_prod <- 0
+    non_neighboring_inner_prod <- rep(0,B)
+    neib_ind <- which(dyad_vec[,1] == node1 | dyad_vec[,1] == node2 | dyad_vec[,2] == node1 | dyad_vec[,2] == node2)
+    non_neib_ind <- which(!(dyad_vec[,1] == node1 | dyad_vec[,1] == node2 | dyad_vec[,2] == node1 | dyad_vec[,2] == node2))
+    for(j in neib_ind){
+      if(j == i) {next}
+      neighboring_inner_prod <- neighboring_inner_prod + sum(dyad_vec[i,3:5] * dyad_vec[j,3:5])
     }
-    nip_list[[i]] <- neighboring_inner_prod
-    non_nip_list[[i]] <- non_neighboring_inner_prod
+    n3 <- length(neib_ind)
+    for(b in 1:B){
+      n4 <- sample(n3, 1)
+      replaced_ind <- sample(neib_ind,n4)
+      replacing_ind <- sample(non_neib_ind, n4)
+      new_ind <- append(neib_ind[-replaced_ind],replacing_ind)
+      for(j in new_ind){
+        non_neighboring_inner_prod[b] <- non_neighboring_inner_prod[b] + sum(dyad_vec[i,3:5] * dyad_vec[j,3:5])
+      }
+    }
+    
+    ip_dist[[i]] <- c(neighboring_inner_prod, non_neighboring_inner_prod)
   }
   
   
-  res <- list(neighboring_inner_prod = nip_list, non_neighboring_inner_prod = non_nip_list)
+  res <- list(ip_dist = ip_dist)
   
   
   class(res) <- 'inner_prod_list'
