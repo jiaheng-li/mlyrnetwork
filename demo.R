@@ -239,9 +239,25 @@ plot(ecdf(y2),
 #######################################
 ### Independence test for each dyad ###
 #######################################
-Lazega_ip <- comp_dyad_inner_prod()
+B <- 1000
+Lazega_ip <- comp_indep_test(B = B)
 
-ind <- 2
+
+ind <- 1
+x <- Lazega_ip$ip_dist[[ind]]
+quant <- which(sort(x) == x[1])
+min_pos <- quant[1]
+max_pos <- quant[length(quant)]
+#hist(x)
+data_frame <- data.frame(x)
+ggplot( data_frame, aes( x= x ) ) + 
+  geom_histogram( bins=range(x)[2]-range(x)[1]+1 )+
+  geom_vline(xintercept = x[1],col = "red")
+print(min_pos/B)
+print(max_pos/B)
+
+
+
 y1 <- Lazega_ip$neighboring_inner_prod[[ind]]
 y2 <- Lazega_ip$non_neighboring_inner_prod[[ind]]
 ks.test(y1,y2)

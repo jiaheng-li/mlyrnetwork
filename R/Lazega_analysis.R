@@ -262,7 +262,7 @@ comp_indep_test <- function(data = Lazega_lawyer_network, B = 100){
     neib_ind <- which(dyad_vec[,1] == node1 | dyad_vec[,1] == node2 | dyad_vec[,2] == node1 | dyad_vec[,2] == node2)
     non_neib_ind <- which(!(dyad_vec[,1] == node1 | dyad_vec[,1] == node2 | dyad_vec[,2] == node1 | dyad_vec[,2] == node2))
     for(j in neib_ind){
-      if(j == i) {next}
+      if(j == i){next}
       neighboring_inner_prod <- neighboring_inner_prod + sum(dyad_vec[i,3:5] * dyad_vec[j,3:5])
     }
     n3 <- length(neib_ind)
