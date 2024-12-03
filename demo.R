@@ -40,7 +40,7 @@ theta <- params[1,]
 N <- 100 # number of nodes
 
 ## Sample a k-layer multilayer network
-mlnet <- samp_ml(theta,N = N, k = k, H = H ,mdim = mdim, seed = seed, mterm = 'SBM', basis_arguments = basis_arguments)
+mlnet <- samp_ml(theta, N = N, k = k, H = H ,mdim = mdim, seed = seed, mterm = 'SBM', basis_arguments = basis_arguments)
 summary_sim(mlnet)
 
 ## plot the k-layer multilayer network sampled above
@@ -240,34 +240,18 @@ plot(ecdf(y2),
 ### Independence test for each dyad ###
 #######################################
 B <- 1000
-Lazega_ip <- comp_indep_test(B = B)
-
-
-ind <- 1
-x <- Lazega_ip$ip_dist[[ind]]
+x <- comp_indep_test_network(B = B)
 quant <- which(sort(x) == x[1])
 min_pos <- quant[1]
 max_pos <- quant[length(quant)]
 #hist(x)
 data_frame <- data.frame(x)
 ggplot( data_frame, aes( x= x ) ) + 
-  geom_histogram( bins=range(x)[2]-range(x)[1]+1 )+
+  geom_histogram( bins=ceiling(range(x)[2]-range(x)[1]+1) )+
   geom_vline(xintercept = x[1],col = "red")
 print(min_pos/B)
 print(max_pos/B)
 
 
 
-y1 <- Lazega_ip$neighboring_inner_prod[[ind]]
-y2 <- Lazega_ip$non_neighboring_inner_prod[[ind]]
-ks.test(y1,y2)
-plot(ecdf(y1), 
-     xlim = range(c(y1, y2)), 
-     col = "blue")
-plot(ecdf(y2), 
-     add = TRUE, 
-     lty = "dashed",
-     col = "red")
-
-range(c(y1, y2))
 
