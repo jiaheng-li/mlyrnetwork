@@ -4,7 +4,7 @@
 \alias{compute_suffstats_Lazega}
 \title{Title}
 \usage{
-compute_suffstats_Lazega(net_data = Lazega_lawyer_network, N = 71)
+compute_suffstats_Lazega(net_data = Lazega_lawyer_network, mdim = 6, N = 71)
 }
 \arguments{
 \item{net_data}{}

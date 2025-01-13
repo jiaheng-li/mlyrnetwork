@@ -253,5 +253,79 @@ print(min_pos/B)
 print(max_pos/B)
 
 
+###########################
+## Link tracing sampling ##
+###########################
+rm(list = ls())
+setwd("C:/Users/ljhhe/OneDrive - Florida State University/GitHub/mlyrnetwork")
+library("devtools")
+devtools::document()
+set.seed(202412)
+seed <- 202412
+samp1 <- link_tracing_samp(data = Lazega_lawyer_network,init = 5, w = 1)
+length(samp1[,1])/length(Lazega_lawyer_network[,1])
+
+## obatin out-samples
+out_samp <- matrix(0,1,3)
+for(i in 1:length(Lazega_lawyer_network[,1])){
+  rowA <- Lazega_lawyer_network[i,]
+  match_vec <- apply(samp1, 1, function(rowB) all(rowB == rowA))
+  if(!any(match_vec)){
+    out_samp <- rbind(out_samp,rowA)
+  }
+    
+}
+out_samp <- out_samp[-1,]
+
+
+# compute the basis network of 2-wave link tracing samples of Lazega
+unique_dyads <- unique(samp1[,1:2])
+unique_dyads_vec <- as.vector(t(unique_dyads))
+
+# estimate ERGM model parameters using MPLE.
+data_res <- est_ml(NetMat = samp1, N = 71, k = 3, H = 2, mdim = 6, mterm = 'other',
+                   seed = seed, basis_arguments = unique_dyads_vec)  
+
+# obtain the estimated theta for Lazega network
+data_theta <- data_res$theta_est
+summary_est(data_res)
+
+# m indicates the number of repetitions
+simulated_suff <- simulate_suffstats_Lazega(data = samp1, m = 20 , theta = data_theta) # reproduce the Lazega network using the estimated parameters and the basis network induced from the observed network.
+## Examples of data analysis using the Lazega lawyer network data set
+obs_all <- compute_suffstats_Lazega(Lazega_lawyer_network)
+obs_in <- compute_suffstats_Lazega(net_data = samp1) # compute the observed sufficient statistics from the link tracing samples.
+obs_out <- compute_suffstats_Lazega(out_samp)
+draw_box_plot_LT_samp <- function(reproduced_suff, obs_all,obs_in,obs_out){
+  suff_y <- c(reproduced_suff)
+  suff_mean <- colMeans(reproduced_suff)
+  m = length(reproduced_suff[,1])
+  dim_x <- c("Coworker", "Advice", "Friendship", "CxA","CxF","AxF")#,"CxAxF")
+  df <- data.frame(suff_y,name = as.factor(rep(dim_x,each = m)))
+  df$name <- factor(df$name,levels = dim_x)
+  
+  fig <- ggplot2::ggplot(df,ggplot2::aes(x = name, y = suff_y)) +
+    ggplot2::geom_boxplot(fill = "grey") + 
+    ggplot2::geom_point( size = 3,ggplot2::aes(x = name,y=rep(obs_all,each = m)),color="red") +
+    ggplot2::geom_point( size = 3,ggplot2::aes(x = name,y=rep(obs_in,each = m)),color= "green") +
+    ggplot2::geom_point( size = 3,ggplot2::aes(x = name,y=rep(obs_out,each = m)),color="blue") +
+    ggplot2::theme_classic() +
+    ggplot2::labs(title = expression(paste("Box-plot of the reproduced sufficient statistic")) , x = "Layer interaction", y ="Sufficient statistic") + 
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5,size = 15),
+                   axis.text = ggplot2::element_text(size=10),
+                   axis.title = ggplot2::element_text(size=15),
+                   panel.border = ggplot2::element_rect(colour = "black", fill=NA,linewidth = 1),
+                   #legend.title = element_text( size = 30),
+                   #legend.text = element_text( size = 30),
+                   #legend.position = "right",
+                   #legend.key.width = unit(5, 'cm'),
+                   #legend.background = element_blank(),
+                   legend.box.background = ggplot2::element_rect(colour = "black",linewidth = 1)) +
+    ggplot2::scale_color_manual(values = c("red")) 
+  
+  return(fig)
+}
+draw_box_plot_LT_samp(simulated_suff, obs_all,obs_in, obs_out)
+
 
 

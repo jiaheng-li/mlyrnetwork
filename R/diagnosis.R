@@ -4,21 +4,15 @@
 #            
 #=================================================================
 
-
-
-
-#' Compute the independence test statistic for the whole network
-#' 
-#' Construct the network-wise test statistic by summing over each dyad's inner product of its neighboring dyads
+#' Title
 #'
-#' @param data n by 3 matrix with each column indicating index1, index2, and layer. The dyad index must be lexicographically ordered.
-#' @param B 
+#' @param data 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-comp_indep_test_network <- function(data = Lazega_lawyer_network, B = 100){
+comp_dyad_mat <- function(data = Lazega_lawyer_network){
   k <- max(data[,3])
   N <- max(data)
   unique_dyads <- unique(data[,1:2])
@@ -45,6 +39,24 @@ comp_indep_test_network <- function(data = Lazega_lawyer_network, B = 100){
       dyad_vec[dyad_ind,data[i,3]+2] <- 1
     }
   }
+  return(dyad_vec)
+}
+
+
+#' Compute the independence test statistic for the whole network
+#' 
+#' Construct the network-wise test statistic by summing over each dyad's inner product of its neighboring dyads
+#'
+#' @param data n by 3 matrix with each column indicating index1, index2, and layer. The dyad index must be lexicographically ordered.
+#' @param B 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+comp_indep_test_network <- function(data = Lazega_lawyer_network, B = 100){
+  dyad_vec <- comp_dyad_mat(data)
+  n2 <- length(dyad_vec[,1])
   
   
   TC <- rep(0,B+1) # list of test statistics
@@ -85,6 +97,49 @@ comp_indep_test_network <- function(data = Lazega_lawyer_network, B = 100){
   
   return(TC)
   
+}
+
+
+#' Title
+#'
+#' @param data 
+#' @param init number of initial nodes
+#' @param w number of waves
+#' @param N 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+link_tracing_samp <- function(data = Lazega_lawyer_network,init = 3, w = 2, N = 0){
+  dyad_vec <- comp_dyad_mat(data)
+  if(!N){
+    N <- max(data[,1:2])
+  }
+  wave <- list()
+  n2 <- length(dyad_vec[,1])
+  wave[[1]] <- sample(N,init)
+  for(j in 1:w){
+    dyad_ind <- c()
+    for(i in wave[[j]]){
+      dyad_ind <- append(dyad_ind, which(dyad_vec[,1] == i | dyad_vec[,2] == i))
+    }
+    wave[[j+1]] <- setdiff(unique(c(dyad_vec[dyad_ind,1:2])),unlist(wave))
+  }
+  node_set <- unlist(wave)
+  lt_samp <- matrix(0,1,3)
+  for(i in 1:n2){
+    if(dyad_vec[i,1] %in% node_set & dyad_vec[i,2] %in% node_set){
+      for(j in 3:length(dyad_vec[1,])){
+        if(dyad_vec[i,j] == 1){
+          lt_samp <- rbind(lt_samp,c(dyad_vec[i,1],dyad_vec[i,2],j-2))
+        }
+        
+      }
+    }
+  }
+  lt_samp <- lt_samp[-1,]
+  return(lt_samp)
 }
 
 
