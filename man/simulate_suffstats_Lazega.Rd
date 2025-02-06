@@ -6,12 +6,22 @@
 \usage{
 simulate_suffstats_Lazega(
   data = Lazega_lawyer_network,
+  N = 71,
+  H = 2,
   mdim = 6,
   m = 10,
   theta = c(-1.4497737, -3.3336582, -2.6945731, 1.8011888, 0.2176545, 2.4582079)
 )
 }
 \arguments{
+\item{data}{}
+
+\item{N}{}
+
+\item{H}{}
+
+\item{mdim}{}
+
 \item{m}{}
 
 \item{theta}{}

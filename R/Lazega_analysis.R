@@ -1,5 +1,76 @@
 
 
+#' Title
+#'
+#' @param adj 
+#' @param K 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+transform_adjmatrix <- function(adj, K){
+  N <- length(adj[[1]][1,])
+  mlnetwork <- matrix(0,1,3)
+  
+  ### Create symmetric adjacent matrix
+  for(i in c(1:(N-1))){
+    for(j in c((i + 1):N)){
+      for(k in 1:K)
+        if(adj[[k]][i,j] == 1 && adj[[k]][j,i] == 1){
+          mlnetwork <- rbind(mlnetwork,c(i,j,k))
+  
+        }
+      
+    }
+  }
+  mlnetwork_vec <- mlnetwork[-1,]
+  return(mlnetwork_vec)
+  
+  
+}
+
+#' Title
+#' Only calculate sufficient stats for models without interactions
+#' @param adj 
+#' @param H 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+compute_suffstats <- function(adj, H = 1){
+  K <- length(adj)
+  N <- length(adj[[1]][1,])
+  mdim <- 0
+  for(h in 1:H){
+    mdim <- mdim + choose(K,h)
+  }
+  
+  suff_mat <- matrix(0,choose(N,2),mdim+1) ## matrix of sufficient statistics for each dyad: number of edges \times dimension
+  for(i in c(1:(N-1))){
+    for(j in c((i + 1):N)){
+      m <- ((N-1)+(N-i+1))*(i-1)/2 + j-i
+      #iter1 <- 1
+      f <- 0
+      for(d in 1:mdim){
+        # if(d > choose(K,iter)){
+        #   p <- d - K
+        #   
+        # }
+        if(adj[[d]][i,j] == 1){
+          suff_mat[m,d] <- 1
+          f <- f + 1
+        }
+        if(f == K){suff_mat[m,K+1] <- 1}
+      }
+      
+    }
+  }
+  suff_mat <- suff_mat[rowSums(suff_mat[])>0,]
+  return(colSums(suff_mat))
+}
+
 
 #' Title
 #'
@@ -76,23 +147,27 @@ compute_suffstats_Lazega <- function(net_data = Lazega_lawyer_network,mdim = 6, 
 #'
 #' @param m 
 #' @param theta 
+#' @param data 
+#' @param N 
+#' @param H 
+#' @param mdim 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-simulate_suffstats_Lazega <- function(data = Lazega_lawyer_network,mdim = 6, m = 10, theta = c(-1.4497737, -3.3336582, -2.6945731,  1.8011888,  0.2176545,  2.4582079)){
+simulate_suffstats_Lazega <- function(data = Lazega_lawyer_network, N = 71, H = 2, mdim = 6, m = 10, theta = c(-1.4497737, -3.3336582, -2.6945731,  1.8011888,  0.2176545,  2.4582079)){
   # the default theta is the MPLE of the Lazega network data
   reproduced_suff <- matrix(0,m,mdim)
   seeds <- sample(1:9999999,m,replace = FALSE)
   sim_suff <- matrix(0,m, mdim)
   unique_dyads <- unique(data[,1:2])
   unique_dyads_vec <- as.vector(t(unique_dyads))
-
+  K <- max(data[,3])
   for(iter in c(1:m)){
     seed <- seeds[iter]
-    reproduced <- samp_ml(theta, N = 71, mdim = 6,
-                          mterm = 'other',intv = 3, H = 2, seed = seeds[iter],
+    reproduced <- samp_ml(theta, N = N, k = K, mdim = mdim,
+                          mterm = 'other',intv = 3, H = H, seed = seeds[iter],
                           basis_arguments = unique_dyads_vec)
     
     simsamp <- reproduced$suff_stats
@@ -109,16 +184,17 @@ simulate_suffstats_Lazega <- function(data = Lazega_lawyer_network,mdim = 6, m =
 #'
 #' @param reproduced_suff 
 #' @param obs 
+#' @param dimx_name 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-draw_box_plot_Lazega <- function(reproduced_suff, obs){
+draw_box_plot_Lazega <- function(reproduced_suff, obs, dimx_name = c("Coworker", "Advice", "Friendship", "CxA","CxF","AxF")){
   suff_y <- c(reproduced_suff)
   suff_mean <- colMeans(reproduced_suff)
   m = length(reproduced_suff[,1])
-  dim_x <- c("Coworker", "Advice", "Friendship", "CxA","CxF","AxF")#,"CxAxF")
+  dim_x <- dimx_name #,"CxAxF")
   df <- data.frame(suff_y,name = as.factor(rep(dim_x,each = m)))
   df$name <- factor(df$name,levels = dim_x)
   

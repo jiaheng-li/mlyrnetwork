@@ -278,7 +278,7 @@ for(i in 1:length(Lazega_lawyer_network[,1])){
 out_samp <- out_samp[-1,]
 
 
-# compute the basis network of 2-wave link tracing samples of Lazega
+# compute the basis network of w-wave link tracing samples of Lazega
 unique_dyads <- unique(samp1[,1:2])
 unique_dyads_vec <- as.vector(t(unique_dyads))
 
@@ -328,4 +328,46 @@ draw_box_plot_LT_samp <- function(reproduced_suff, obs_all,obs_in,obs_out){
 draw_box_plot_LT_samp(simulated_suff, obs_all,obs_in, obs_out)
 
 
+### Compare density of sufficient statistics ### 
+### of the pop, in-sample and out-sample #######
+pop <- Lazega_lawyer_network
 
+dens_all <- obs_all / length(pop[,1])
+dens_in <- obs_in / length(samp1[,1])
+dens_out <- obs_out / (length(pop[,1]) - length(samp1[,1]))
+draw_box_plot_LT_samp(simulated_suff/length(samp1[,1]),dens_all,dens_in,dens_out)
+
+##########################
+## prepare new datasets ##
+##########################
+rm(list = ls())
+setwd("C:/Users/ljhhe/OneDrive - Florida State University/GitHub/mlyrnetwork")
+library("devtools")
+devtools::document()
+set.seed(202502)
+seed <- 202502
+adj1 <- read.table("C:/Users/ljhhe/OneDrive - Florida State University/Research/Applications/Taylor_shop/kapfdata/kapfts1.dat")
+adj2 <- read.table("C:/Users/ljhhe/OneDrive - Florida State University/Research/Applications/Taylor_shop/kapfdata/kapfts2.dat")
+adj <- list(adj1,adj2)
+K <- 2
+mlnet_vec <- transform_adjmatrix(adj,K)
+
+
+## Examples of data analysis using the Lazega lawyer network data set
+obs <- compute_suffstats(adj,H=1) # compute the observed sufficient statistics from the Lazega network.
+
+# compute the basis network of Lazega
+unique_dyads <- unique(mlnet_vec[,1:2])
+unique_dyads_vec <- as.vector(t(unique_dyads))
+
+# estimate ERGM model parameters using MPLE.
+data_res <- est_ml(NetMat = mlnet_vec, N = 39, k = 2, H = 2, mdim = 3, mterm = 'other',
+                   seed = seed, basis_arguments = unique_dyads_vec)  
+
+# obtain the estimated theta for Lazega network
+data_theta <- data_res$theta_est
+summary_est(data_res)
+
+# m indicates the number of repetitions
+simulated_suff <- simulate_suffstats_Lazega(data = mlnet_vec,N = 39, H = 2, mdim = 3, m = 30, theta = data_theta) # reproduce the Lazega network using the estimated parameters and the basis network induced from the observed network.
+draw_box_plot_Lazega(simulated_suff, obs,dimx_name = c("layer1" , "layer 2", "Layer 1X2"))
